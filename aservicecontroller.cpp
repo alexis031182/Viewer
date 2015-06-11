@@ -50,6 +50,10 @@ void AServiceController::createVideoDeviceModel() {
     if(_vid_dev_model) _vid_dev_model->clear();
     else _vid_dev_model = new QStandardItemModel(this);
 
+    _vid_dev_model->setHorizontalHeaderLabels(QStringList()
+        << AServiceController::tr("Name")
+        << AServiceController::tr("Description"));
+
     AVInputFormat *av_inp_fmt = NULL;
     while((av_inp_fmt = av_input_video_device_next(av_inp_fmt))) {
         QStandardItem *grp_name_item
