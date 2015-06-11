@@ -1,6 +1,8 @@
+#include <QtCore/QAbstractItemModel>
+
 #include <QtWidgets/QTabWidget>
 #include <QtWidgets/QLineEdit>
-#include <QtWidgets/QComboBox>
+#include <QtWidgets/QTreeView>
 #include <QtWidgets/QLayout>
 #include <QtWidgets/QLabel>
 
@@ -20,22 +22,15 @@ ASourceSelector::ASourceSelector(QWidget *parent) : QWidget(parent) {
     url_wdg->layout()->addWidget(url_label);
     url_wdg->layout()->addWidget(_url_ledit);
 
-    QLabel *dev_grp_label = new QLabel(this);
-    dev_grp_label->setText(ASourceSelector::tr("Category:"));
+    QLabel *dev_label = new QLabel(this);
+    dev_label->setText(ASourceSelector::tr("Available video devices:"));
 
-    _dev_grp_cbox = new QComboBox(this);
-
-    QLabel *dev_dev_label = new QLabel(this);
-    dev_dev_label->setText(ASourceSelector::tr("Device:"));
-
-    _dev_dev_cbox = new QComboBox(this);
+    _dev_tview = new QTreeView(this);
 
     QWidget *dev_wdg = new QWidget(this);
     dev_wdg->setLayout(new QVBoxLayout());
-    dev_wdg->layout()->addWidget(dev_grp_label);
-    dev_wdg->layout()->addWidget(_dev_grp_cbox);
-    dev_wdg->layout()->addWidget(dev_dev_label);
-    dev_wdg->layout()->addWidget(_dev_dev_cbox);
+    dev_wdg->layout()->addWidget(dev_label);
+    dev_wdg->layout()->addWidget(_dev_tview);
 
     _type_tab_wdg = new QTabWidget(this);
     _type_tab_wdg->addTab(url_wdg, ASourceSelector::tr("URL"));
@@ -75,60 +70,16 @@ void ASourceSelector::setUrl(const QString &url) {_url_ledit->setText(url);}
 
 
 // ========================================================================== //
-// Get groups.
+// Get video device model.
 // ========================================================================== //
-QList<ASourceSelector::FullName> ASourceSelector::groups() const {
-    return names(_dev_grp_cbox);
+QAbstractItemModel *ASourceSelector::videoDeviceModel() const {
+    return _dev_tview->model();
 }
 
 
 // ========================================================================== //
-// Set groups.
+// Set video device model.
 // ========================================================================== //
-void ASourceSelector::setGroups(const QList<FullName> &groups) {
-    setNames(groups, _dev_grp_cbox);
-}
-
-
-// ========================================================================== //
-// Get devices.
-// ========================================================================== //
-QList<ASourceSelector::FullName> ASourceSelector::devices() const {
-    return names(_dev_dev_cbox);
-}
-
-
-// ========================================================================== //
-// Set devices.
-// ========================================================================== //
-void ASourceSelector::setDevices(const QList<FullName> &devices) {
-    setNames(devices, _dev_dev_cbox);
-}
-
-
-// ========================================================================== //
-// Get names.
-// ========================================================================== //
-QList<ASourceSelector::FullName> ASourceSelector::names(QComboBox *cbox) const {
-    QList<ASourceSelector::FullName> names;
-    for(int i = 0, n = cbox->count(); i < n; ++i)
-        names.append(FullName(cbox->itemText(i),cbox->itemData(i).toString()));
-
-    return names;
-}
-
-
-// ========================================================================== //
-// Set names.
-// ========================================================================== //
-void ASourceSelector::setNames(const QList<ASourceSelector::FullName> &names
-    , QComboBox *cbox) {
-
-    cbox->clear();
-
-    QListIterator<FullName> itr(names);
-    while(itr.hasNext()) {
-        const FullName &name = itr.next();
-        cbox->addItem(name.shortName(),name.longName());
-    }
+void ASourceSelector::setVideoDeviceModel(QAbstractItemModel *model) {
+    _dev_tview->setModel(model);
 }
