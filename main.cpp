@@ -4,6 +4,7 @@
 
 #include <QtWidgets/QApplication>
 
+#include "aservicecontroller.h"
 #include "amainwindow.h"
 
 // ========================================================================== //
@@ -16,6 +17,8 @@ int main(int argc, char *argv[]) {
     app.setApplicationName(QStringLiteral("Viewer"));
     app.setApplicationVersion(QStringLiteral("1.0"));
     app.setQuitOnLastWindowClosed(false);
+
+    AServiceController::instance();
 
     AMainWindow main_win;
     main_win.setWindowTitle(app.applicationDisplayName());
