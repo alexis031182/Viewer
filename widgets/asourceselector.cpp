@@ -124,6 +124,8 @@ QList<ASourceSelector::FullName> ASourceSelector::names(QComboBox *cbox) const {
 void ASourceSelector::setNames(const QList<ASourceSelector::FullName> &names
     , QComboBox *cbox) {
 
+    cbox->clear();
+
     QListIterator<FullName> itr(names);
     while(itr.hasNext()) {
         const FullName &name = itr.next();
