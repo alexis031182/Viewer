@@ -74,7 +74,7 @@ void AServiceController::createVideoDeviceModel() {
                         ->device_description));
 
                 grp_name_item->appendRow(QList<QStandardItem*>()
-                    << dev_desc_item << dev_name_item);
+                    << dev_name_item << dev_desc_item);
             }
         }
 
