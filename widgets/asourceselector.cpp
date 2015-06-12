@@ -1,5 +1,8 @@
 #include <QtCore/QAbstractItemModel>
+#include <QtCore/QCoreApplication>
 
+#include <QtWidgets/QFileDialog>
+#include <QtWidgets/QToolButton>
 #include <QtWidgets/QTabWidget>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QTreeView>
@@ -17,10 +20,26 @@ ASourceSelector::ASourceSelector(QWidget *parent) : QWidget(parent) {
 
     _url_ledit = new QLineEdit(this);
 
+    QToolButton *url_tbut = new QToolButton(this);
+    url_tbut->setText(QStringLiteral("..."));
+    connect(url_tbut, &QToolButton::clicked, [this]() {
+        const QString url
+            = QFileDialog::getOpenFileName(this
+                , ASourceSelector::tr("Select resource:")
+                , (_url_ledit->text().isEmpty())
+                    ? QCoreApplication::applicationDirPath()
+                    : _url_ledit->text());
+
+        if(!url.isEmpty()) _url_ledit->setText(url);
+    });
+
+    QGridLayout *url_layout = new QGridLayout();
+    url_layout->addWidget(url_label, 0, 0, 1, 2);
+    url_layout->addWidget(_url_ledit, 1, 0, 1, 1);
+    url_layout->addWidget(url_tbut, 1, 1, 1, 1);
+
     QWidget *url_wdg = new QWidget(this);
-    url_wdg->setLayout(new QVBoxLayout());
-    url_wdg->layout()->addWidget(url_label);
-    url_wdg->layout()->addWidget(_url_ledit);
+    url_wdg->setLayout(url_layout);
 
     QLabel *dev_label = new QLabel(this);
     dev_label->setText(ASourceSelector::tr("Available video devices:"));
