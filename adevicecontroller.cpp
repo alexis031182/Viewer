@@ -33,8 +33,10 @@ void ADeviceController::setImageWidget(AImageWidget *wdg) {
 
     _img_wdg = wdg;
 
-    connect(_capture, &ACaptureThread::captured
-        , _img_wdg, &AImageWidget::setImage);
+    if(_img_wdg) {
+        connect(_capture, &ACaptureThread::captured
+            , _img_wdg, &AImageWidget::setImage);
+    }
 }
 
 
