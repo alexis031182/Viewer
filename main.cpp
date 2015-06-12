@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
     app.setOrganizationDomain(QStringLiteral("ru"));
     app.setApplicationName(QStringLiteral("Viewer"));
     app.setApplicationVersion(QStringLiteral("1.0"));
-    app.setQuitOnLastWindowClosed(false);
+    //app.setQuitOnLastWindowClosed(false);
 
     AServiceController::instance();
 
