@@ -12,12 +12,14 @@ SOURCES += main.cpp \
     amainwindow.cpp \
     widgets/asourceselector.cpp \
     aservicecontroller.cpp \
-    widgets/aimagewidget.cpp
+    widgets/aimagewidget.cpp \
+    acapturethread.cpp
 
 HEADERS += amainwindow.h \
     widgets/asourceselector.h \
     aservicecontroller.h \
-    widgets/aimagewidget.h
+    widgets/aimagewidget.h \
+    acapturethread.h
 
 unix {
     CONFIG += link_pkgconfig
