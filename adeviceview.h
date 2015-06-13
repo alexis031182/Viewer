@@ -24,6 +24,10 @@ class ADeviceView : public QWidget {
         //! Set device controller.
         void setController(ADeviceController *ctrl);
 
+    protected:
+        //! Context menu event.
+        virtual void contextMenuEvent(QContextMenuEvent *event);
+
     private:
         AImageWidget *_img_wdg;
 
