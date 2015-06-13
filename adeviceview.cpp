@@ -52,6 +52,56 @@ void ADeviceView::setController(ADeviceController *ctrl) {
 void ADeviceView::contextMenuEvent(QContextMenuEvent *event) {
     QMenu menu(this);
 
+    QList<ADeviceController*> devices
+        = AServiceController::instance()->devices();
+
+    if(!devices.isEmpty()) {
+        QListIterator<ADeviceController*> itr(devices);
+        while(itr.hasNext()) {
+            QAction *dev_action = new QAction(&menu);
+
+            ADeviceController *dev_ctrl = itr.next();
+
+            const bool has_url
+                = dev_ctrl->identifier().hasValue(ADeviceIdentifier::TYPE_URL);
+            const bool has_dev
+                = dev_ctrl->identifier().hasValue(ADeviceIdentifier::TYPE_DEV);
+            const bool has_grp
+                = dev_ctrl->identifier().hasValue(ADeviceIdentifier::TYPE_GRP);
+
+            if(has_url) {
+                dev_action->setText(dev_ctrl->identifier()
+                    .value(ADeviceIdentifier::TYPE_URL).toString());
+
+            } else {
+                if(has_dev && has_grp) {
+                    const QString dev
+                        = dev_ctrl->identifier()
+                            .value(ADeviceIdentifier::TYPE_DEV).toString();
+
+                    const QString grp
+                        = dev_ctrl->identifier()
+                            .value(ADeviceIdentifier::TYPE_GRP).toString();
+
+                    dev_action->setText(grp + QLatin1Char('/') + dev);
+
+                } else if(has_dev) {
+                    dev_action->setText(dev_ctrl->identifier()
+                        .value(ADeviceIdentifier::TYPE_DEV).toString());
+
+                } else if(has_grp) {
+                    dev_action->setText(dev_ctrl->identifier()
+                        .value(ADeviceIdentifier::TYPE_GRP).toString());
+
+                } else dev_action->setText(ADeviceView::tr("Unknown"));
+            }
+
+            menu.addAction(dev_action);
+        }
+
+        menu.addSeparator();
+    }
+
     QAction *url_select_action = new QAction(&menu);
     url_select_action->setText(ADeviceView::tr("Add new resource..."));
     connect(url_select_action, &QAction::triggered, [this]() {
