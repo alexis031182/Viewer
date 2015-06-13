@@ -4,6 +4,8 @@
 #include <QtCore/QPointer>
 #include <QtCore/QObject>
 
+#include "adeviceidentifier.h"
+
 class ACaptureThread;
 class AImageWidget;
 
@@ -26,6 +28,12 @@ class ADeviceController : public QObject {
         //! Destructor.
         virtual ~ADeviceController() {}
 
+        //! Get device identifier.
+        const ADeviceIdentifier &identifier() const;
+
+        //! Set device identifier.
+        void setIdentifier(const ADeviceIdentifier &identifier);
+
         //! Get image widget.
         AImageWidget *imageWidget() const;
 
@@ -43,6 +51,8 @@ class ADeviceController : public QObject {
         void stop();
 
     private:
+        ADeviceIdentifier _identifier;
+
         ACaptureThread *_capture;
 
         QPointer<AImageWidget> _img_wdg;

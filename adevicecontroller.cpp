@@ -17,6 +17,43 @@ ADeviceController::ADeviceController(QObject *parent)
 
 
 // ========================================================================== //
+// Get device identifier.
+// ========================================================================== //
+const ADeviceIdentifier &ADeviceController::identifier() const {
+    return _identifier;
+}
+
+
+// ========================================================================== //
+// Set device identifier.
+// ========================================================================== //
+void ADeviceController::setIdentifier(const ADeviceIdentifier &identifier) {
+    const bool is_capturing = _capture->isRunning();
+    if(is_capturing) stop();
+
+    _identifier = identifier;
+
+    if(_identifier.hasValue(ADeviceIdentifier::TYPE_URL)) {
+        _capture->setDeviceName(_identifier
+            .value(ADeviceIdentifier::TYPE_URL).toString());
+
+    } else {
+        if(_identifier.hasValue(ADeviceIdentifier::TYPE_DEV)) {
+            _capture->setDeviceName(_identifier
+                .value(ADeviceIdentifier::TYPE_DEV).toString());
+        }
+
+        if(_identifier.hasValue(ADeviceIdentifier::TYPE_GRP)) {
+            _capture->setGroupName(_identifier
+                .value(ADeviceIdentifier::TYPE_GRP).toString());
+        }
+    }
+
+    if(is_capturing) start();
+}
+
+
+// ========================================================================== //
 // Get image widget.
 // ========================================================================== //
 AImageWidget *ADeviceController::imageWidget() const {return _img_wdg;}
