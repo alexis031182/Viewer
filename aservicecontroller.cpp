@@ -3,11 +3,13 @@ extern "C" {
     #include <libavformat/avformat.h>
 }
 
+#include <QtCore/QCoreApplication>
 #include <QtCore/QGlobalStatic>
 
 #include <QtGui/QStandardItemModel>
 
 #include "aservicecontroller.h"
+#include "adevicecontroller.h"
 
 Q_GLOBAL_STATIC(AServiceController, _g_service_ctrl)
 
@@ -20,12 +22,39 @@ AServiceController *AServiceController::instance() {return _g_service_ctrl;}
 // ========================================================================== //
 // Constructor.
 // ========================================================================== //
-AServiceController::AServiceController(QObject *parent) : QObject(parent) {
+AServiceController::AServiceController(QObject *parent)
+    : QObject(parent), _devices_obj(new QObject(this)) {
+
     av_register_all();
     avdevice_register_all();
     avformat_network_init();
 
+    connect(qApp, &QCoreApplication::aboutToQuit, [this]() {
+        delete _devices_obj;
+    });
+
+    connect(_devices_obj, &QObject::destroyed, [this]() {
+        QListIterator<ADeviceController*> itr(devices());
+        while(itr.hasNext()) itr.next()->stop();
+    });
+
     createVideoDeviceModel();
+}
+
+
+// ========================================================================== //
+// Register device.
+// ========================================================================== //
+void AServiceController::registerDevice(ADeviceController *ctrl) {
+    if(ctrl) ctrl->setParent(_devices_obj);
+}
+
+
+// ========================================================================== //
+// Get devices.
+// ========================================================================== //
+QList<ADeviceController*> AServiceController::devices() const {
+    return _devices_obj->findChildren<ADeviceController*>();
 }
 
 
