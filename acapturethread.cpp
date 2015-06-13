@@ -208,8 +208,10 @@ void ACaptureThread::run() {
             , Qt::QueuedConnection, Q_ARG(QImage,img));
 
         const qint64 elapsed = stream_timer.restart();
-        if(av_vid_strm->avg_frame_rate.num > elapsed)
-            QThread::msleep(av_vid_strm->avg_frame_rate.num - elapsed);
+        const qint64 timebase
+            = av_vid_strm->avg_frame_rate.num / av_vid_strm->avg_frame_rate.den;
+
+        if(timebase > elapsed) QThread::msleep(timebase - elapsed);
     }
 
     av_frame_free(&av_vid_frm);
