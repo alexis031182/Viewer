@@ -34,6 +34,9 @@ class ADeviceController : public QObject {
         //! Set device identifier.
         void setIdentifier(const ADeviceIdentifier &identifier);
 
+        //! Get is capturing.
+        bool isCapturing() const;
+
         //! Get image widget.
         AImageWidget *imageWidget() const;
 

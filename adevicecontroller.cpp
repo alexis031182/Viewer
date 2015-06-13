@@ -54,6 +54,12 @@ void ADeviceController::setIdentifier(const ADeviceIdentifier &identifier) {
 
 
 // ========================================================================== //
+// Get is capturing.
+// ========================================================================== //
+bool ADeviceController::isCapturing() const {return _capture->isRunning();}
+
+
+// ========================================================================== //
 // Get image widget.
 // ========================================================================== //
 AImageWidget *ADeviceController::imageWidget() const {return _img_wdg;}
