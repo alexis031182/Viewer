@@ -23,6 +23,9 @@ class ADeviceIdentifier {
         //! Set type value.
         void setValue(ADeviceIdentifier::Type type, const QVariant &value);
 
+        //! Get display name.
+        QString displayName() const;
+
     private:
         QHash<Type,QVariant> _types;
 

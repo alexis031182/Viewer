@@ -56,45 +56,33 @@ void ADeviceView::contextMenuEvent(QContextMenuEvent *event) {
         = AServiceController::instance()->devices();
 
     if(!devices.isEmpty()) {
+        const QString cur_dsp_name
+            = (_dev_ctrl) ? _dev_ctrl->identifier().displayName() : QString();
+
         QListIterator<ADeviceController*> itr(devices);
         while(itr.hasNext()) {
-            QAction *dev_action = new QAction(&menu);
-
             ADeviceController *dev_ctrl = itr.next();
 
-            const bool has_url
-                = dev_ctrl->identifier().hasValue(ADeviceIdentifier::TYPE_URL);
-            const bool has_dev
-                = dev_ctrl->identifier().hasValue(ADeviceIdentifier::TYPE_DEV);
-            const bool has_grp
-                = dev_ctrl->identifier().hasValue(ADeviceIdentifier::TYPE_GRP);
+            QAction *dev_action = new QAction(&menu);
+            dev_action->setCheckable(true);
 
-            if(has_url) {
-                dev_action->setText(dev_ctrl->identifier()
-                    .value(ADeviceIdentifier::TYPE_URL).toString());
+            const QString dev_dsp_name = dev_ctrl->identifier().displayName();
+            if(!cur_dsp_name.isEmpty() && dev_dsp_name == cur_dsp_name) {
+                dev_action->setChecked(true);
 
             } else {
-                if(has_dev && has_grp) {
-                    const QString dev
-                        = dev_ctrl->identifier()
-                            .value(ADeviceIdentifier::TYPE_DEV).toString();
+                connect(dev_action, &QAction::triggered, [this,dev_ctrl]() {
+                    if(_dev_ctrl && _dev_ctrl->isCapturing())
+                        _dev_ctrl->stop();
 
-                    const QString grp
-                        = dev_ctrl->identifier()
-                            .value(ADeviceIdentifier::TYPE_GRP).toString();
+                    setController(dev_ctrl);
 
-                    dev_action->setText(grp + QLatin1Char('/') + dev);
-
-                } else if(has_dev) {
-                    dev_action->setText(dev_ctrl->identifier()
-                        .value(ADeviceIdentifier::TYPE_DEV).toString());
-
-                } else if(has_grp) {
-                    dev_action->setText(dev_ctrl->identifier()
-                        .value(ADeviceIdentifier::TYPE_GRP).toString());
-
-                } else dev_action->setText(ADeviceView::tr("Unknown"));
+                    QMetaObject::invokeMethod(dev_ctrl, "start"
+                        , Qt::QueuedConnection);
+                });
             }
+
+            dev_action->setText(dev_dsp_name);
 
             menu.addAction(dev_action);
         }
