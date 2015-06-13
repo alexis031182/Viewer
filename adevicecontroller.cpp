@@ -44,10 +44,11 @@ void ADeviceController::setImageWidget(AImageWidget *wdg) {
 // Start.
 // ========================================================================== //
 void ADeviceController::start() {
+    if(_capture->isRunning()) return;
+
     emit starting();
 
-    if(!_capture->isRunning())
-        _capture->start();
+    _capture->start();
 
     emit started();
 }
@@ -57,18 +58,18 @@ void ADeviceController::start() {
 // Stop.
 // ========================================================================== //
 void ADeviceController::stop() {
+    if(!_capture->isRunning()) return;
+
     emit stopping();
 
-    if(_capture->isRunning()) {
-        disconnect(_capture, &ACaptureThread::finished
-            , this, &ADeviceController::stop);
+    disconnect(_capture, &ACaptureThread::finished
+        , this, &ADeviceController::stop);
 
-        _capture->requestInterruption();
-        _capture->wait();
+    _capture->requestInterruption();
+    _capture->wait();
 
-        connect(_capture, &ACaptureThread::finished
-            , this, &ADeviceController::stop);
-    }
+    connect(_capture, &ACaptureThread::finished
+        , this, &ADeviceController::stop);
 
     emit stopped();
 }
