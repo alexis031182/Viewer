@@ -14,14 +14,16 @@ SOURCES += main.cpp \
     aservicecontroller.cpp \
     widgets/aimagewidget.cpp \
     acapturethread.cpp \
-    adevicecontroller.cpp
+    adevicecontroller.cpp \
+    adeviceview.cpp
 
 HEADERS += amainwindow.h \
     widgets/asourceselector.h \
     aservicecontroller.h \
     widgets/aimagewidget.h \
     acapturethread.h \
-    adevicecontroller.h
+    adevicecontroller.h \
+    adeviceview.h
 
 unix {
     CONFIG += link_pkgconfig
