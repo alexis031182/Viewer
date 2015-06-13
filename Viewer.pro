@@ -10,20 +10,22 @@ DEFINES += __STDC_CONSTANT_MACROS
 
 SOURCES += main.cpp \
     amainwindow.cpp \
-    widgets/asourceselector.cpp \
     aservicecontroller.cpp \
     widgets/aimagewidget.cpp \
     acapturethread.cpp \
     adevicecontroller.cpp \
-    adeviceview.cpp
+    adeviceview.cpp \
+    widgets/aurlselector.cpp \
+    widgets/amodelselector.cpp
 
 HEADERS += amainwindow.h \
-    widgets/asourceselector.h \
     aservicecontroller.h \
     widgets/aimagewidget.h \
     acapturethread.h \
     adevicecontroller.h \
-    adeviceview.h
+    adeviceview.h \
+    widgets/aurlselector.h \
+    widgets/amodelselector.h
 
 unix {
     CONFIG += link_pkgconfig
