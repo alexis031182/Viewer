@@ -207,11 +207,15 @@ void ACaptureThread::run() {
         QMetaObject::invokeMethod(this, "captured"
             , Qt::QueuedConnection, Q_ARG(QImage,img));
 
-        const qint64 elapsed = stream_timer.restart();
-        const qint64 timebase
-            = av_vid_strm->avg_frame_rate.num / av_vid_strm->avg_frame_rate.den;
+        const int avg_fps
+            = av_vid_strm->avg_frame_rate.num
+                / av_vid_strm->avg_frame_rate.den;
 
-        if(timebase > elapsed) QThread::msleep(timebase - elapsed);
+        const int avg_dur = 1000 / avg_fps;
+        const int cur_dur = stream_timer.elapsed();
+        if(avg_dur > cur_dur) QThread::msleep(avg_dur - cur_dur);
+
+        stream_timer.restart();
     }
 
     av_frame_free(&av_vid_frm);
