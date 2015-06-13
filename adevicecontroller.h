@@ -32,6 +32,9 @@ class ADeviceController : public QObject {
         //! Set image widget.
         void setImageWidget(AImageWidget *wdg);
 
+        //! Unset image widget.
+        void unsetImageWidget();
+
     public slots:
         //! Start.
         void start();
