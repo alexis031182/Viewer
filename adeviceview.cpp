@@ -74,6 +74,9 @@ void ADeviceView::contextMenuEvent(QContextMenuEvent *event) {
         dlg.layout()->addWidget(btn_box);
         if(dlg.exec() != QDialog::Accepted) return;
 
+        if(_dev_ctrl && _dev_ctrl->isCapturing())
+            _dev_ctrl->stop();
+
         ADeviceIdentifier identifier;
         identifier.setValue(ADeviceIdentifier::TYPE_URL, selector->url());
 
