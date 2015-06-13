@@ -5,6 +5,8 @@ extern "C" {
     #include <libswscale/swscale.h>
 }
 
+#include <QtCore/QElapsedTimer>
+
 #include <QtGui/QImage>
 
 #include "acapturethread.h"
@@ -158,9 +160,19 @@ void ACaptureThread::run() {
 
     AVFrame *av_vid_frm = av_frame_alloc();
 
+    QElapsedTimer stream_timer;
+    stream_timer.start();
+
     AVPacket av_pkt;
     while(!isInterruptionRequested()) {
         if(av_read_frame(av_fmt_ctx, &av_pkt) < 0) break;
+
+        if(av_pkt.stream_index != vid_strm_idx) {
+            av_free_packet(&av_pkt); continue;
+        }
+
+        av_packet_rescale_ts(&av_pkt, av_vid_strm->time_base
+            , av_dec_ctx->time_base);
 
         int pkt_rdy = -1;
         if(avcodec_decode_video2(av_dec_ctx, av_vid_frm
@@ -194,6 +206,10 @@ void ACaptureThread::run() {
 
         QMetaObject::invokeMethod(this, "captured"
             , Qt::QueuedConnection, Q_ARG(QImage,img));
+
+        const qint64 elapsed = stream_timer.restart();
+        if(av_vid_strm->avg_frame_rate.num > elapsed)
+            QThread::msleep(av_vid_strm->avg_frame_rate.num - elapsed);
     }
 
     av_frame_free(&av_vid_frm);
