@@ -66,7 +66,7 @@ void ACaptureThread::run() {
 
     AVInputFormat *av_inp_fmt = NULL;
     if(!grp_name.isEmpty()) {
-        av_inp_fmt = av_find_input_format(grp_name.toLatin1());
+        av_inp_fmt = av_find_input_format(grp_name.toUtf8());
         if(!av_inp_fmt) {
             QMetaObject::invokeMethod(this, "failed", Qt::QueuedConnection);
 
@@ -75,7 +75,7 @@ void ACaptureThread::run() {
     }
 
     AVFormatContext *av_fmt_ctx = NULL;
-    if(avformat_open_input(&av_fmt_ctx, dev_name.toLatin1()
+    if(avformat_open_input(&av_fmt_ctx, dev_name.toUtf8()
         , av_inp_fmt, NULL) < 0) {
 
         QMetaObject::invokeMethod(this, "failed", Qt::QueuedConnection);
