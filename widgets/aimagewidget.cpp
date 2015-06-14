@@ -40,7 +40,7 @@ void AImageWidget::setImage(const QImage &img) {
         if(img.width() != _img.width() || img.height() != _img.height())
             _dst_rc = QRect();
 
-        _img = img.copy();
+        _img = img;
     }
 
     update();
