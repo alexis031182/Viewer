@@ -38,10 +38,7 @@ ADeviceController *ADeviceView::controller() const {return _dev_ctrl;}
 // Set device controller.
 // ========================================================================== //
 void ADeviceView::setController(ADeviceController *ctrl) {
-    if(_dev_ctrl) {
-        _dev_ctrl->unsetImageWidget();
-        _img_wdg->setImage(QImage());
-    }
+    if(_dev_ctrl) _dev_ctrl->unsetImageWidget();
 
     _dev_ctrl = ctrl;
 

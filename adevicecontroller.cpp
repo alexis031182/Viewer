@@ -72,6 +72,8 @@ void ADeviceController::setImageWidget(AImageWidget *wdg) {
     if(_img_wdg) {
         disconnect(_capture, &ACaptureThread::captured
             , _img_wdg, &AImageWidget::setImage);
+
+        _img_wdg->setImage(QImage());
     }
 
     _img_wdg = wdg;
