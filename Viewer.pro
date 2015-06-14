@@ -34,3 +34,6 @@ unix {
 
     PKGCONFIG += libavdevice libavutil libavformat libavcodec libswscale
 }
+
+RESOURCES += \
+    images.qrc

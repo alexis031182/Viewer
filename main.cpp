@@ -16,12 +16,13 @@ int main(int argc, char *argv[]) {
     app.setOrganizationDomain(QStringLiteral("ru"));
     app.setApplicationName(QStringLiteral("Viewer"));
     app.setApplicationVersion(QStringLiteral("1.0"));
-    //app.setQuitOnLastWindowClosed(false);
 
     AServiceController::instance();
 
     AMainWindow main_win;
     main_win.setWindowTitle(app.applicationDisplayName());
+    main_win.resize(800,600);
+
     QMetaObject::invokeMethod(&main_win, "show", Qt::QueuedConnection);
 
     return app.exec();
