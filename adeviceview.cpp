@@ -22,8 +22,8 @@ ADeviceView::ADeviceView(QWidget *parent) : QWidget(parent) {
     _img_wdg = new AImageWidget(this);
 
     setLayout(new QVBoxLayout());
-    layout()->setMargin(4);
-    layout()->setSpacing(4);
+    layout()->setMargin(0);
+    layout()->setSpacing(0);
     layout()->addWidget(_img_wdg);
 }
 
