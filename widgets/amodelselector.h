@@ -29,6 +29,9 @@ class AModelSelector : public QWidget {
         //! Set model.
         void setModel(QAbstractItemModel *model);
 
+        //! Get current model index.
+        QModelIndex currentIndex() const;
+
     private:
         QLabel *_label;
 

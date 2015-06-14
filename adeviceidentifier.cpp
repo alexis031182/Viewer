@@ -52,7 +52,7 @@ QString ADeviceIdentifier::displayName() const {
             const QString grp
                 = _types.value(ADeviceIdentifier::TYPE_GRP).toString();
 
-            return grp + QLatin1Char('/') + dev;
+            return grp + QLatin1String(" - ") + dev;
 
         } else if(has_dev) {
             return _types.value(ADeviceIdentifier::TYPE_DEV).toString();

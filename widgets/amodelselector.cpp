@@ -12,6 +12,7 @@
 AModelSelector::AModelSelector(QWidget *parent) : QWidget(parent) {
     _label = new QLabel(this);
     _tview = new QTreeView(this);
+    _tview->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     setLayout(new QVBoxLayout());
     layout()->addWidget(_label);
@@ -42,4 +43,12 @@ QAbstractItemModel *AModelSelector::model() const {return _tview->model();}
 // ========================================================================== //
 void AModelSelector::setModel(QAbstractItemModel *model) {
     _tview->setModel(model);
+}
+
+
+// ========================================================================== //
+// Get current model index.
+// ========================================================================== //
+QModelIndex AModelSelector::currentIndex() const {
+    return _tview->currentIndex();
 }
