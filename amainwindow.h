@@ -13,6 +13,24 @@ class AMainWindow : public QMainWindow {
         //! Destructor.
         virtual ~AMainWindow() {}
 
+    private:
+        QAction *_file_quit_action;
+
+        QAction *_window_add_action;
+
+        //! Create actions.
+        void createActions();
+
+        //! Create menus.
+        void createMenus();
+
+        //! Create toolbars.
+        void createToolBars();
+
+    private slots:
+        //! Update view layout.
+        void updateViewLayout();
+
 };
 
 #endif
