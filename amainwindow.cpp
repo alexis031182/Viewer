@@ -35,7 +35,12 @@ void AMainWindow::createActions() {
         ":/images/window-add.png")));
 
     connect(_window_add_action, &QAction::triggered, [this]() {
-        new ADeviceView(centralWidget()); updateViewLayout();
+        ADeviceView *dev_view = new ADeviceView(centralWidget());
+        connect(dev_view, &QObject::destroyed
+            , this, &AMainWindow::updateViewLayout
+            , Qt::QueuedConnection);
+
+        updateViewLayout();
     });
 }
 

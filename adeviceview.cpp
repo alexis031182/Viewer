@@ -188,8 +188,15 @@ void ADeviceView::contextMenuEvent(QContextMenuEvent *event) {
         QMetaObject::invokeMethod(dev_ctrl, "start", Qt::QueuedConnection);
     });
 
+    QAction *window_remove_action = new QAction(&menu);
+    window_remove_action->setText(ADeviceView::tr("Remove window"));
+    connect(window_remove_action, &QAction::triggered
+        , this, &ADeviceView::deleteLater);
+
     menu.addAction(url_select_action);
     menu.addAction(model_select_action);
+    menu.addSeparator();
+    menu.addAction(window_remove_action);
     menu.exec(event->globalPos());
 
     event->accept();
