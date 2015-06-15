@@ -229,11 +229,15 @@ void ACaptureThread::run() {
                     , CV_8UC3);
 
             for(int y = 0, rows = av_dec_ctx->height; y < rows; ++y) {
+                const int q1 = y * av_cap_frm->linesize[0];
+
                 for(int x = 0, cols = av_dec_ctx->width; x < cols; ++x) {
+                    const int q2 = q1 + x * 3;
+
                     cv::Vec3b &d = mat.at<cv::Vec3b>(y,x);
-                    d[0] = av_cap_frm->data[0][y*av_cap_frm->linesize[0]+x*3+0];
-                    d[1] = av_cap_frm->data[0][y*av_cap_frm->linesize[0]+x*3+1];
-                    d[2] = av_cap_frm->data[0][y*av_cap_frm->linesize[0]+x*3+2];
+                    d[0] = av_cap_frm->data[0][q2+0];
+                    d[1] = av_cap_frm->data[0][q2+1];
+                    d[2] = av_cap_frm->data[0][q2+2];
                 }
             }
 
