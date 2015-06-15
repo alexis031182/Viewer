@@ -10,7 +10,7 @@ class GRAYFILTERSHARED_EXPORT AGrayFilter
     : public QObject, public AFilterInterface {
 
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID AFilterInterface_iid)
+    Q_PLUGIN_METADATA(IID AFilterInterface_iid FILE "metadata.json")
     Q_INTERFACES(AFilterInterface)
 
     public:

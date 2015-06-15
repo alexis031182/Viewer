@@ -10,3 +10,6 @@ SOURCES += agrayfilter.cpp
 
 HEADERS += agrayfilter.h \
     grayfilter_global.h
+
+DISTFILES += \
+    metadata.json
