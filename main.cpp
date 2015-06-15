@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
     app.setOrganizationName(QStringLiteral("AlexisSoft"));
     app.setOrganizationDomain(QStringLiteral("ru"));
     app.setApplicationName(QStringLiteral("Viewer"));
-    app.setApplicationVersion(QStringLiteral("1.0"));
+    app.setApplicationVersion(QStringLiteral("1.1"));
 
     AServiceController::instance();
 

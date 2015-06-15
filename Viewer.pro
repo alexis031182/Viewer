@@ -27,13 +27,13 @@ HEADERS += amainwindow.h \
     adeviceview.h \
     widgets/aurlselector.h \
     widgets/amodelselector.h \
-    adeviceidentifier.h
+    adeviceidentifier.h \
+    filters/afilterinterface.h
 
 unix {
     CONFIG += link_pkgconfig
 
-    PKGCONFIG += libavdevice libavutil libavformat libavcodec libswscale
+    PKGCONFIG += opencv libavdevice libavutil libavformat libavcodec libswscale
 }
 
-RESOURCES += \
-    images.qrc
+RESOURCES += images.qrc
