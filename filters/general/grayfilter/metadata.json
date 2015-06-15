@@ -1,5 +1,5 @@
 {
     "group"   : "General",
-    "name"    : "Gray filter",
+    "name"    : "GrayFilter",
     "version" : "1.0"
 }

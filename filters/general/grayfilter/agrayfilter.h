@@ -20,6 +20,12 @@ class GRAYFILTERSHARED_EXPORT AGrayFilter
         //! Destructor.
         virtual ~AGrayFilter() {}
 
+        //! Get display group.
+        virtual QString displayGroup() const;
+
+        //! Get display name.
+        virtual QString displayName() const;
+
         //! Use.
         virtual void use(QWidget *parent = NULL);
 

@@ -5,12 +5,19 @@
 
 #include <QtCore/QtPlugin>
 
+class QString;
 class QWidget;
 
 class AFilterInterface {
     public:
         //! Destructor.
         virtual ~AFilterInterface() {}
+
+        //! Get display group.
+        virtual QString displayGroup() const = 0;
+
+        //! Get display name.
+        virtual QString displayName() const = 0;
 
         //! Use.
         virtual void use(QWidget *parent = NULL) = 0;
