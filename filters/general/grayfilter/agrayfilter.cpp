@@ -1,3 +1,5 @@
+#include <opencv2/imgproc.hpp>
+
 #include "agrayfilter.h"
 
 // ========================================================================== //
@@ -27,4 +29,9 @@ void AGrayFilter::use(QWidget *parent) {Q_UNUSED(parent);}
 // ========================================================================== //
 // Run.
 // ========================================================================== //
-void AGrayFilter::run(cv::Mat &matrix) {Q_UNUSED(matrix);}
+void AGrayFilter::run(cv::Mat &matrix) {
+    if(!matrix.empty() && matrix.channels() == 3) {
+        cv::cvtColor(matrix, matrix, cv::COLOR_RGB2GRAY);
+        cv::cvtColor(matrix, matrix, cv::COLOR_GRAY2RGB);
+    }
+}
