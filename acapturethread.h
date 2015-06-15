@@ -4,6 +4,8 @@
 #include <QtCore/QThread>
 #include <QtCore/QMutex>
 
+class AFilterInterface;
+
 class ACaptureThread : public QThread {
     Q_OBJECT
 
@@ -17,6 +19,15 @@ class ACaptureThread : public QThread {
 
         //! Destructor.
         virtual ~ACaptureThread() {}
+
+        //! Get filter.
+        AFilterInterface *filter();
+
+        //! Set filter.
+        void setFilter(AFilterInterface *filter);
+
+        //! Unset filter.
+        void unsetFilter();
 
         //! Get device name.
         QString deviceName();
@@ -36,6 +47,8 @@ class ACaptureThread : public QThread {
         virtual void run();
 
     private:
+        AFilterInterface *_filter;
+
         QString _dev_name, _grp_name;
 
         QMutex _mutex;

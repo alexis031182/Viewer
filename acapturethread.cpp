@@ -9,12 +9,37 @@ extern "C" {
 
 #include <QtGui/QImage>
 
+#include "filters/afilterinterface.h"
+
 #include "acapturethread.h"
 
 // ========================================================================== //
 // Constructor.
 // ========================================================================== //
-ACaptureThread::ACaptureThread(QObject *parent) : QThread(parent) {}
+ACaptureThread::ACaptureThread(QObject *parent)
+    : QThread(parent), _filter(NULL) {}
+
+
+// ========================================================================== //
+// Get filter.
+// ========================================================================== //
+AFilterInterface *ACaptureThread::filter() {
+    QMutexLocker locker(&_mutex); return _filter;
+}
+
+
+// ========================================================================== //
+// Set filter.
+// ========================================================================== //
+void ACaptureThread::setFilter(AFilterInterface *filter) {
+    QMutexLocker locker(&_mutex); _filter = filter;
+}
+
+
+// ========================================================================== //
+// Unset filter.
+// ========================================================================== //
+void ACaptureThread::unsetFilter() {setFilter(NULL);}
 
 
 // ========================================================================== //
@@ -193,16 +218,46 @@ void ACaptureThread::run() {
 
         av_free_packet(&av_pkt);
 
-        const int &w = av_cap_frm->width;
-        const int &h = av_cap_frm->height;
+        _mutex.lock();
+        bool has_filter = (_filter) ? true : false;
+        _mutex.unlock();
 
-        QImage img(w, h, QImage::Format_RGB888);
-        for(int row = 0, bpl = w*3; row < av_cap_frm->height; ++row) {
-            memcpy(img.scanLine(row)
-                , av_cap_frm->data[0] + row*av_cap_frm->linesize[0], bpl);
+        QImage img;
+        if(has_filter) {
+            cv::Mat mat
+                = cv::Mat::zeros(av_dec_ctx->height, av_dec_ctx->width
+                    , CV_8UC3);
+
+            for(int y = 0, rows = av_dec_ctx->height; y < rows; ++y) {
+                for(int x = 0, cols = av_dec_ctx->width; x < cols; ++x) {
+                    cv::Vec3b &d = mat.at<cv::Vec3b>(y,x);
+                    d[0] = av_cap_frm->data[0][y*av_cap_frm->linesize[0]+x*3+0];
+                    d[1] = av_cap_frm->data[0][y*av_cap_frm->linesize[0]+x*3+1];
+                    d[2] = av_cap_frm->data[0][y*av_cap_frm->linesize[0]+x*3+2];
+                }
+            }
+
+            _mutex.lock();
+            _filter->run(mat);
+            _mutex.unlock();
+
+            img = QImage(mat.data, mat.cols, mat.rows, mat.step
+                , QImage::Format_RGB888);
+
+            img = img.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+
+        } else {
+            const int &w = av_cap_frm->width;
+            const int &h = av_cap_frm->height;
+
+            QImage img(w, h, QImage::Format_RGB888);
+            for(int row = 0, bpl = w*3; row < av_cap_frm->height; ++row) {
+                memcpy(img.scanLine(row)
+                    , av_cap_frm->data[0] + row*av_cap_frm->linesize[0], bpl);
+            }
+
+            img = img.convertToFormat(QImage::Format_ARGB32_Premultiplied);
         }
-
-        img = img.convertToFormat(QImage::Format_ARGB32_Premultiplied);
 
         QMetaObject::invokeMethod(this, "captured"
             , Qt::QueuedConnection, Q_ARG(QImage,img));
