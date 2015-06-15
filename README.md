@@ -1,2 +1,2 @@
 # Viewer
-C++, Qt5, FFmpeg viewer
+C++, Qt5, OpenCV, FFmpeg viewer
