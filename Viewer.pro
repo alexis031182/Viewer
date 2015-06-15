@@ -37,3 +37,7 @@ unix {
 }
 
 RESOURCES += images.qrc
+
+DISTFILES += \
+    LICENSE \
+    README.md
