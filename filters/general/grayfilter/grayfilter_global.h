@@ -1,0 +1,12 @@
+#ifndef GRAYFILTER_GLOBAL_H
+#define GRAYFILTER_GLOBAL_H
+
+#include <QtCore/qglobal.h>
+
+#if defined(GRAYFILTER_LIBRARY)
+#  define GRAYFILTERSHARED_EXPORT Q_DECL_EXPORT
+#else
+#  define GRAYFILTERSHARED_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif
