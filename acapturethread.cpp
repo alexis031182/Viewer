@@ -254,7 +254,7 @@ void ACaptureThread::run() {
             const int &w = av_cap_frm->width;
             const int &h = av_cap_frm->height;
 
-            QImage img(w, h, QImage::Format_RGB888);
+            img = QImage(w, h, QImage::Format_RGB888);
             for(int row = 0, bpl = w*3; row < av_cap_frm->height; ++row) {
                 memcpy(img.scanLine(row)
                     , av_cap_frm->data[0] + row*av_cap_frm->linesize[0], bpl);
