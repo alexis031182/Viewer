@@ -5,6 +5,10 @@ extern "C" {
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QGlobalStatic>
+#include <QtCore/QPluginLoader>
+#include <QtCore/QDirIterator>
+#include <QtCore/QJsonObject>
+#include <QtCore/QDebug>
 
 #include <QtGui/QStandardItemModel>
 
@@ -28,6 +32,17 @@ AServiceController::AServiceController(QObject *parent)
     av_register_all();
     avdevice_register_all();
     avformat_network_init();
+
+    const QString fpath = qApp->applicationDirPath()+QLatin1String("/filters");
+    if(QDir().exists(fpath)) {
+        QDirIterator itr(fpath, QStringList()
+            , QDir::Files | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
+
+        while(itr.hasNext()) {
+            QPluginLoader *loader = new QPluginLoader(itr.next(), this);
+            qDebug() << loader->metaData();
+        }
+    }
 
     connect(qApp, &QCoreApplication::aboutToQuit, [this]() {
         delete _devices_obj;

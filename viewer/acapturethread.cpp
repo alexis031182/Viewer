@@ -9,9 +9,8 @@ extern "C" {
 
 #include <QtGui/QImage>
 
-#include "filters/afilterinterface.h"
-
 #include "acapturethread.h"
+#include "afilterinterface.h"
 
 // ========================================================================== //
 // Constructor.
