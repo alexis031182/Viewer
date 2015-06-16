@@ -213,18 +213,38 @@ void ADeviceView::contextMenuEvent(QContextMenuEvent *event) {
                     QModelIndex file_idx = vid_flt_model->index(ii, 1, grp_idx);
                     if(!file_idx.isValid()) continue;
 
-                    QAction *action = new QAction(grp_menu);
-                    action->setText(vid_flt_model->data(name_idx).toString());
-                    action->setData(vid_flt_model->data(file_idx));
-                    connect(action, &QAction::triggered, [this,action]() {
-                        if(_dev_ctrl) {
-                            _dev_ctrl->setFilter(action->data().toString());
+                    const QString name
+                        = vid_flt_model->data(name_idx).toString();
+                    const QString file
+                        = vid_flt_model->data(file_idx).toString();
 
-                            QDialog *dlg = _dev_ctrl->filterProperties();
-                            if(dlg) {
-                                dlg->setParent(this);
-                                dlg->setAttribute(Qt::WA_DeleteOnClose);
-                                dlg->show();
+                    QAction *action = new QAction(name, grp_menu);
+                    connect(action, &QAction::triggered, [this,name,file]() {
+                        if(_dev_ctrl) {
+                            _dev_ctrl->setFilter(file);
+
+                            QWidget *wdg = _dev_ctrl->filterProperties();
+                            if(wdg) {
+                                QDialog dlg(this);
+                                dlg.setWindowTitle(name);
+                                dlg.setLayout(new QVBoxLayout());
+
+                                wdg->setParent(&dlg);
+
+                                dlg.layout()->addWidget(wdg);
+
+                                QDialogButtonBox *btn_box
+                                    = new QDialogButtonBox(&dlg);
+                                btn_box->setStandardButtons(
+                                    QDialogButtonBox::Ok);
+
+                                connect(btn_box, &QDialogButtonBox::accepted
+                                    , &dlg, &QDialog::accept);
+                                connect(btn_box, &QDialogButtonBox::rejected
+                                    , &dlg, &QDialog::reject);
+
+                                dlg.layout()->addWidget(btn_box);
+                                dlg.exec();
                             }
                         }
                     });

@@ -2,6 +2,8 @@ TARGET = grayfilter
 
 TEMPLATE = lib
 
+CONFIG += c++11
+
 DEFINES += GRAYFILTER_LIBRARY
 
 INCLUDEPATH += ../..

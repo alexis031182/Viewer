@@ -95,8 +95,8 @@ void ADeviceController::unsetFilter() {
 // ========================================================================== //
 // Get filter properties.
 // ========================================================================== //
-QDialog *ADeviceController::filterProperties() const {
-    if(_loader && _loader->isLoaded()) {
+QWidget *ADeviceController::filterProperties() const {
+    if(_loader) {
         AFilterInterface *filter
             = qobject_cast<AFilterInterface*>(_loader->instance());
 

@@ -19,8 +19,8 @@ class AFilterInterface {
         //! Get display name.
         virtual QString displayName() const = 0;
 
-        //! Get properties dialog.
-        virtual QDialog *properties() const = 0;
+        //! Get properties widget.
+        virtual QWidget *properties() = 0;
 
         //! Run.
         virtual void run(cv::Mat &matrix) = 0;

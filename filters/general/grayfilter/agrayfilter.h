@@ -2,6 +2,7 @@
 #define AGRAYFILTER_H
 
 #include <QtCore/QObject>
+#include <QtCore/QMutex>
 
 #include "grayfilter_global.h"
 #include "afilterinterface.h"
@@ -26,11 +27,26 @@ class GRAYFILTERSHARED_EXPORT AGrayFilter
         //! Get display name.
         virtual QString displayName() const;
 
-        //! Get properties dialog.
-        virtual QDialog *properties() const;
+        //! Get properties widget.
+        virtual QWidget *properties();
 
         //! Run.
         virtual void run(cv::Mat &matrix);
+
+    private:
+        enum Mode {
+            MODE_GRAY,
+            MODE_RGB_R,
+            MODE_RGB_G,
+            MODE_RGB_B,
+            MODE_HSV_H,
+            MODE_HSV_S,
+            MODE_HSV_V
+        };
+
+        Mode _mode;
+
+        QMutex _mutex;
 
 };
 
