@@ -42,7 +42,10 @@ QWidget *AGrayFilter::properties() {
     mode_cbox->addItem(AGrayFilter::tr("H channel"), MODE_HSV_H);
     mode_cbox->addItem(AGrayFilter::tr("S channel"), MODE_HSV_S);
     mode_cbox->addItem(AGrayFilter::tr("V channel"), MODE_HSV_V);
+
+    _mutex.lock();
     mode_cbox->setCurrentIndex(mode_cbox->findData(_mode));
+    _mutex.unlock();
 
     connect(mode_cbox
         , static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged)
