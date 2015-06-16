@@ -26,8 +26,8 @@ class GRAYFILTERSHARED_EXPORT AGrayFilter
         //! Get display name.
         virtual QString displayName() const;
 
-        //! Use.
-        virtual void use(QWidget *parent = NULL);
+        //! Get properties dialog.
+        virtual QDialog *properties() const;
 
         //! Run.
         virtual void run(cv::Mat &matrix);

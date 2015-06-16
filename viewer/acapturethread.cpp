@@ -241,7 +241,7 @@ void ACaptureThread::run() {
             }
 
             _mutex.lock();
-            _filter->run(mat);
+            if(_filter) _filter->run(mat);
             _mutex.unlock();
 
             img = QImage(mat.data, mat.cols, mat.rows, mat.step

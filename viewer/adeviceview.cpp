@@ -219,6 +219,13 @@ void ADeviceView::contextMenuEvent(QContextMenuEvent *event) {
                     connect(action, &QAction::triggered, [this,action]() {
                         if(_dev_ctrl) {
                             _dev_ctrl->setFilter(action->data().toString());
+
+                            QDialog *dlg = _dev_ctrl->filterProperties();
+                            if(dlg) {
+                                dlg->setParent(this);
+                                dlg->setAttribute(Qt::WA_DeleteOnClose);
+                                dlg->show();
+                            }
                         }
                     });
 

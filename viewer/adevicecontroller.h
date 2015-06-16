@@ -7,6 +7,7 @@
 #include "adeviceidentifier.h"
 
 class QPluginLoader;
+class QDialog;
 
 class ACaptureThread;
 class AImageWidget;
@@ -42,6 +43,12 @@ class ADeviceController : public QObject {
         //! Set filter.
         void setFilter(const QString &fname);
 
+        //! Unset filter.
+        void unsetFilter();
+
+        //! Get filter properties.
+        QDialog *filterProperties() const;
+
         //! Get is capturing.
         bool isCapturing() const;
 
@@ -64,7 +71,7 @@ class ADeviceController : public QObject {
     private:
         ADeviceIdentifier _identifier;
 
-        QPluginLoader *_loader;
+        QPointer<QPluginLoader> _loader;
 
         ACaptureThread *_capture;
 

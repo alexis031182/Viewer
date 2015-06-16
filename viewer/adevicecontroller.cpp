@@ -9,8 +9,8 @@
 // ========================================================================== //
 // Constructor.
 // ========================================================================== //
-ADeviceController::ADeviceController(QObject *parent) : QObject(parent)
-    , _loader(new QPluginLoader(this)), _capture(new ACaptureThread(this)) {
+ADeviceController::ADeviceController(QObject *parent)
+    : QObject(parent), _capture(new ACaptureThread(this)) {
 
     connect(_capture, &ACaptureThread::failed
         , this, &ADeviceController::failed);
@@ -59,20 +59,51 @@ void ADeviceController::setIdentifier(const ADeviceIdentifier &identifier) {
 // ========================================================================== //
 // Get filter.
 // ========================================================================== //
-QString ADeviceController::filter() const {return _loader->fileName();}
+QString ADeviceController::filter() const {
+    return (_loader) ? _loader->fileName() : QString();
+}
 
 
 // ========================================================================== //
 // Set filter.
 // ========================================================================== //
 void ADeviceController::setFilter(const QString &fname) {
-    if(_loader->isLoaded()) {
-        _capture->unsetFilter();
-        _loader->unload();
+    unsetFilter();
+
+    _loader = new QPluginLoader(fname, this);
+
+    QObject *filter_obj = _loader->instance();
+    if(filter_obj) {
+        _capture->setFilter(qobject_cast<AFilterInterface*>(filter_obj));
+
+    } else unsetFilter();
+}
+
+
+// ========================================================================== //
+// Unset filter.
+// ========================================================================== //
+void ADeviceController::unsetFilter() {
+    if(_loader) {
+        if(_loader->isLoaded()) {_capture->unsetFilter(); _loader->unload();}
+
+        _loader->deleteLater(); _loader = NULL;
+    }
+}
+
+
+// ========================================================================== //
+// Get filter properties.
+// ========================================================================== //
+QDialog *ADeviceController::filterProperties() const {
+    if(_loader && _loader->isLoaded()) {
+        AFilterInterface *filter
+            = qobject_cast<AFilterInterface*>(_loader->instance());
+
+        if(filter) return filter->properties();
     }
 
-    _loader->setFileName(fname);
-    _capture->setFilter(qobject_cast<AFilterInterface*>(_loader->instance()));
+    return NULL;
 }
 
 

@@ -6,7 +6,7 @@
 #include <QtCore/QtPlugin>
 
 class QString;
-class QWidget;
+class QDialog;
 
 class AFilterInterface {
     public:
@@ -19,8 +19,8 @@ class AFilterInterface {
         //! Get display name.
         virtual QString displayName() const = 0;
 
-        //! Use.
-        virtual void use(QWidget *parent = NULL) = 0;
+        //! Get properties dialog.
+        virtual QDialog *properties() const = 0;
 
         //! Run.
         virtual void run(cv::Mat &matrix) = 0;

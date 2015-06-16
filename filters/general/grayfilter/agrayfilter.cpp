@@ -21,9 +21,9 @@ QString AGrayFilter::displayName() const {return AGrayFilter::tr("Decolor");}
 
 
 // ========================================================================== //
-// Use.
+// Get properties dialog.
 // ========================================================================== //
-void AGrayFilter::use(QWidget *parent) {Q_UNUSED(parent);}
+QDialog *AGrayFilter::properties() const {return NULL;}
 
 
 // ========================================================================== //
