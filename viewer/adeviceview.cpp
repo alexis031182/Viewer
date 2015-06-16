@@ -221,7 +221,8 @@ void ADeviceView::contextMenuEvent(QContextMenuEvent *event) {
                     QAction *action = new QAction(name, grp_menu);
                     connect(action, &QAction::triggered, [this,name,file]() {
                         if(_dev_ctrl) {
-                            _dev_ctrl->setFilter(file);
+                            if(_dev_ctrl->filter() != file)
+                                _dev_ctrl->setFilter(file);
 
                             QWidget *wdg = _dev_ctrl->filterProperties();
                             if(wdg) {
