@@ -1,6 +1,6 @@
 QT += core gui widgets
 
-TARGET = Viewer
+TARGET = viewer
 
 TEMPLATE = app
 

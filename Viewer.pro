@@ -1,9 +1,7 @@
 TEMPLATE = subdirs
 
 SUBDIRS += viewer \
-    filters/general/grayfilter
-
-HEADERS += filters/afilterinterface.h
+    filters
 
 DISTFILES += LICENSE \
     README.md
