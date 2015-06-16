@@ -127,6 +127,8 @@ void ADeviceView::contextMenuEvent(QContextMenuEvent *event) {
         QMetaObject::invokeMethod(dev_ctrl, "start", Qt::QueuedConnection);
     });
 
+    menu.addAction(url_select_action);
+
     QAction *model_select_action = new QAction(&menu);
     model_select_action->setText(ADeviceView::tr("Add new device..."));
     connect(model_select_action, &QAction::triggered, [this]() {
@@ -185,13 +187,56 @@ void ADeviceView::contextMenuEvent(QContextMenuEvent *event) {
         QMetaObject::invokeMethod(dev_ctrl, "start", Qt::QueuedConnection);
     });
 
+    menu.addAction(model_select_action);
+
+    QAbstractItemModel *vid_flt_model
+        = AServiceController::instance()->videoFilterModel();
+
+    if(vid_flt_model && vid_flt_model->rowCount()) {
+        menu.addSeparator();
+
+        for(int i = 0, n = vid_flt_model->rowCount(); i < n; ++i) {
+            QModelIndex grp_idx = vid_flt_model->index(i,0);
+            if(!grp_idx.isValid()) continue;
+
+            QAction *flt_action = new QAction(&menu);
+            flt_action->setText(vid_flt_model->data(grp_idx).toString());
+
+            if(vid_flt_model->rowCount(grp_idx)) {
+                QMenu *grp_menu = new QMenu(&menu);
+                for(int ii = 0, nn = vid_flt_model->rowCount(grp_idx)
+                    ; ii < nn; ++ii) {
+
+                    QModelIndex name_idx = vid_flt_model->index(ii, 0, grp_idx);
+                    if(!name_idx.isValid()) continue;
+
+                    QModelIndex file_idx = vid_flt_model->index(ii, 1, grp_idx);
+                    if(!file_idx.isValid()) continue;
+
+                    QAction *action = new QAction(grp_menu);
+                    action->setText(vid_flt_model->data(name_idx).toString());
+                    action->setData(vid_flt_model->data(file_idx));
+                    connect(action, &QAction::triggered, [this,action]() {
+                        if(_dev_ctrl) {
+                            _dev_ctrl->setFilter(action->data().toString());
+                        }
+                    });
+
+                    grp_menu->addAction(action);
+                }
+
+                flt_action->setMenu(grp_menu);
+            }
+
+            menu.addAction(flt_action);
+        }
+    }
+
     QAction *window_remove_action = new QAction(&menu);
     window_remove_action->setText(ADeviceView::tr("Remove window"));
     connect(window_remove_action, &QAction::triggered
         , this, &ADeviceView::deleteLater);
 
-    menu.addAction(url_select_action);
-    menu.addAction(model_select_action);
     menu.addSeparator();
     menu.addAction(window_remove_action);
     menu.exec(event->globalPos());

@@ -1,13 +1,16 @@
+#include <QtCore/QPluginLoader>
+
 #include "widgets/aimagewidget.h"
 
 #include "adevicecontroller.h"
+#include "afilterinterface.h"
 #include "acapturethread.h"
 
 // ========================================================================== //
 // Constructor.
 // ========================================================================== //
-ADeviceController::ADeviceController(QObject *parent)
-    : QObject(parent), _capture(new ACaptureThread(this)) {
+ADeviceController::ADeviceController(QObject *parent) : QObject(parent)
+    , _loader(new QPluginLoader(this)), _capture(new ACaptureThread(this)) {
 
     connect(_capture, &ACaptureThread::failed
         , this, &ADeviceController::failed);
@@ -50,6 +53,26 @@ void ADeviceController::setIdentifier(const ADeviceIdentifier &identifier) {
     }
 
     if(is_capturing) start();
+}
+
+
+// ========================================================================== //
+// Get filter.
+// ========================================================================== //
+QString ADeviceController::filter() const {return _loader->fileName();}
+
+
+// ========================================================================== //
+// Set filter.
+// ========================================================================== //
+void ADeviceController::setFilter(const QString &fname) {
+    if(_loader->isLoaded()) {
+        _capture->unsetFilter();
+        _loader->unload();
+    }
+
+    _loader->setFileName(fname);
+    _capture->setFilter(qobject_cast<AFilterInterface*>(_loader->instance()));
 }
 
 

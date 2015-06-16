@@ -6,6 +6,8 @@
 
 #include "adeviceidentifier.h"
 
+class QPluginLoader;
+
 class ACaptureThread;
 class AImageWidget;
 
@@ -34,6 +36,12 @@ class ADeviceController : public QObject {
         //! Set device identifier.
         void setIdentifier(const ADeviceIdentifier &identifier);
 
+        //! Get filter.
+        QString filter() const;
+
+        //! Set filter.
+        void setFilter(const QString &fname);
+
         //! Get is capturing.
         bool isCapturing() const;
 
@@ -55,6 +63,8 @@ class ADeviceController : public QObject {
 
     private:
         ADeviceIdentifier _identifier;
+
+        QPluginLoader *_loader;
 
         ACaptureThread *_capture;
 
