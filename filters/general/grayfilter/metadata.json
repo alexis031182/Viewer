@@ -1,5 +1,5 @@
 {
-    "group"   : "General",
-    "name"    : "GrayFilter",
-    "version" : "1.0"
+    "category" : "Video",
+    "group"    : "General",
+    "name"     : "GrayFilter"
 }
