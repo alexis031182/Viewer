@@ -1,5 +1,6 @@
 TEMPLATE = subdirs
 
-SUBDIRS += general/grayfilter
+SUBDIRS += general/grayfilter \
+    general/blurfilter
 
 HEADERS += afilterinterface.h
