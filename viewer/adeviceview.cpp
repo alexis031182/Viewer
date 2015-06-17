@@ -195,6 +195,14 @@ void ADeviceView::contextMenuEvent(QContextMenuEvent *event) {
     if(vid_flt_model && vid_flt_model->rowCount()) {
         menu.addSeparator();
 
+        QAction *flt_unset_action = new QAction(&menu);
+        flt_unset_action->setText(ADeviceView::tr("Unset"));
+        connect(flt_unset_action, &QAction::triggered, [this]() {
+            if(_dev_ctrl) _dev_ctrl->unsetFilter();
+        });
+
+        menu.addAction(flt_unset_action);
+
         for(int i = 0, n = vid_flt_model->rowCount(); i < n; ++i) {
             QModelIndex grp_idx = vid_flt_model->index(i,0);
             if(!grp_idx.isValid()) continue;
