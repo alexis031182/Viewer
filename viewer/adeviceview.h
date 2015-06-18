@@ -5,6 +5,7 @@
 
 #include <QtWidgets/QWidget>
 
+class QActionGroup;
 class QMenu;
 
 class ADeviceController;
@@ -42,6 +43,8 @@ class ADeviceView : public QWidget {
         AImageWidget *_img_wdg;
 
         QMenu *_url_menu, *_dev_menu;
+
+        QActionGroup *_url_act_grp, *_dev_act_grp;
 
         QWidget *_action_wdg;
 

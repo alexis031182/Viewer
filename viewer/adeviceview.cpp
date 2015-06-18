@@ -43,6 +43,9 @@ ADeviceView::ADeviceView(QWidget *parent)
         _action_wdg_animate_freezed = false;
     });
 
+    _url_act_grp = new QActionGroup(this);
+    _dev_act_grp = new QActionGroup(this);
+
     foreach(ADeviceController *ctrl
         , AServiceController::instance()->devices())
         createDeviceAction(ctrl);
@@ -341,8 +344,12 @@ bool ADeviceView::eventFilter(QObject *obj, QEvent *event) {
 // Create device action.
 // ========================================================================== //
 void ADeviceView::createDeviceAction(ADeviceController *ctrl) {
-    QAction *action = new QAction(this);
+    QAction *action
+        = new QAction((ctrl->identifier().hasValue(ADeviceIdentifier::TYPE_URL))
+            ? _url_act_grp : _dev_act_grp);
+
     action->setText(ctrl->identifier().displayName());
+    action->setCheckable(true);
     connect(action, &QAction::triggered, [this,ctrl]() {
         if(_dev_ctrl) {
             if(_dev_ctrl == ctrl) return;
@@ -355,11 +362,9 @@ void ADeviceView::createDeviceAction(ADeviceController *ctrl) {
     });
 
     if(ctrl->identifier().hasValue(ADeviceIdentifier::TYPE_URL)) {
-        action->setParent(_url_menu);
         _url_menu->addAction(action);
 
     } else {
-        action->setParent(_dev_menu);
         _dev_menu->addAction(action);
     }
 }
