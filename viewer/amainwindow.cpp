@@ -59,10 +59,13 @@ void AMainWindow::createActions() {
         ADeviceIdentifier identifier;
         identifier.setValue(ADeviceIdentifier::TYPE_URL, selector->url());
 
-        ADeviceController *dev_ctrl = new ADeviceController(this);
-        dev_ctrl->setIdentifier(identifier);
+        ADeviceController *ctrl = new ADeviceController(this);
+        ctrl->setIdentifier(identifier);
 
-        AServiceController::instance()->registerDevice(dev_ctrl);
+        AServiceController::instance()->registerDevice(ctrl);
+
+        statusBar()->showMessage(AMainWindow::tr("Resource appended:")
+            + QLatin1Char(' ') + identifier.displayName(), 5000);
     });
 
     _file_dev_action = new QAction(this);
@@ -112,10 +115,13 @@ void AMainWindow::createActions() {
             break;
         }
 
-        ADeviceController *dev_ctrl = new ADeviceController(this);
-        dev_ctrl->setIdentifier(identifier);
+        ADeviceController *ctrl = new ADeviceController(this);
+        ctrl->setIdentifier(identifier);
 
-        AServiceController::instance()->registerDevice(dev_ctrl);
+        AServiceController::instance()->registerDevice(ctrl);
+
+        statusBar()->showMessage(AMainWindow::tr("Device appended:")
+            + QLatin1Char(' ') + identifier.displayName(), 5000);
     });
 
     _file_quit_action = new QAction(this);
