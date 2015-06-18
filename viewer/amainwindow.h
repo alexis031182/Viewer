@@ -14,7 +14,7 @@ class AMainWindow : public QMainWindow {
         virtual ~AMainWindow() {}
 
     private:
-        QAction *_file_quit_action;
+        QAction *_file_url_action, *_file_dev_action, *_file_quit_action;
 
         QAction *_window_add_action;
 
