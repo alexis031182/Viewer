@@ -52,7 +52,10 @@ AServiceController::AServiceController(QObject *parent)
 // Register device.
 // ========================================================================== //
 void AServiceController::registerDevice(ADeviceController *ctrl) {
-    if(ctrl) ctrl->setParent(_devices_obj);
+    if(ctrl) {
+        ctrl->setParent(_devices_obj);
+        emit deviceRegistered(ctrl);
+    }
 }
 
 

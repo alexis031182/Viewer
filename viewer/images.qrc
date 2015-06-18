@@ -3,5 +3,7 @@
         <file>images/window-add.png</file>
         <file>images/start.png</file>
         <file>images/stop.png</file>
+        <file>images/camera.png</file>
+        <file>images/network.png</file>
     </qresource>
 </RCC>

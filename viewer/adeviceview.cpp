@@ -22,49 +22,41 @@
 // ========================================================================== //
 // Constructor.
 // ========================================================================== //
-ADeviceView::ADeviceView(QWidget *parent) : QWidget(parent) {
+ADeviceView::ADeviceView(QWidget *parent)
+    : QWidget(parent), _action_wdg_animate_freezed(false) {
+
     _img_wdg = new AImageWidget(this);
 
-    QGraphicsOpacityEffect *effect = new QGraphicsOpacityEffect(this);
-    effect->setOpacity(0.0);
-
-    _pnl_wdg = new QWidget(this);
-    _pnl_wdg->setMinimumHeight(50);
-    _pnl_wdg->setGraphicsEffect(effect);
-    _pnl_wdg->installEventFilter(this);
-
-    QToolButton *pnl_start_tbut = new QToolButton(_pnl_wdg);
-    pnl_start_tbut->setIcon(QIcon(QStringLiteral(":/images/start.png")));
-    pnl_start_tbut->setIconSize(QSize(24,24));
-    pnl_start_tbut->setToolTip(ADeviceView::tr("Start"));
-    pnl_start_tbut->setFocusPolicy(Qt::NoFocus);
-    connect(pnl_start_tbut, &QToolButton::clicked, [this]() {
-        if(_dev_ctrl) _dev_ctrl->start();
+    _url_menu = new QMenu(this);
+    connect(_url_menu, &QMenu::aboutToShow, [this]() {
+        _action_wdg_animate_freezed = true;
+    });
+    connect(_url_menu, &QMenu::aboutToHide, [this]() {
+        _action_wdg_animate_freezed = false;
     });
 
-    QToolButton *pnl_stop_tbut = new QToolButton(_pnl_wdg);
-    pnl_stop_tbut->setIcon(QIcon(QStringLiteral(":/images/stop.png")));
-    pnl_stop_tbut->setIconSize(QSize(24,24));
-    pnl_stop_tbut->setToolTip(ADeviceView::tr("Stop"));
-    pnl_stop_tbut->setFocusPolicy(Qt::NoFocus);
-    connect(pnl_stop_tbut, &QToolButton::clicked, [this]() {
-        if(_dev_ctrl) _dev_ctrl->stop();
+    _dev_menu = new QMenu(this);
+    connect(_dev_menu, &QMenu::aboutToShow, [this]() {
+        _action_wdg_animate_freezed = true;
+    });
+    connect(_dev_menu, &QMenu::aboutToHide, [this]() {
+        _action_wdg_animate_freezed = false;
     });
 
-    QHBoxLayout *pnl_layout = new QHBoxLayout();
-    pnl_layout->setSpacing(0);
-    pnl_layout->setMargin(0);
-    pnl_layout->addStretch(1);
-    pnl_layout->addWidget(pnl_start_tbut);
-    pnl_layout->addWidget(pnl_stop_tbut);
-    pnl_layout->addStretch(1);
+    foreach(ADeviceController *ctrl
+        , AServiceController::instance()->devices())
+        createDeviceAction(ctrl);
 
-    _pnl_wdg->setLayout(pnl_layout);
+    connect(AServiceController::instance()
+        , &AServiceController::deviceRegistered
+        , this, &ADeviceView::createDeviceAction);
 
     setLayout(new QVBoxLayout());
     layout()->setMargin(0);
     layout()->setSpacing(0);
     layout()->addWidget(_img_wdg);
+
+    createActionWidget();
 }
 
 
@@ -327,8 +319,8 @@ void ADeviceView::contextMenuEvent(QContextMenuEvent *event) {
 void ADeviceView::resizeEvent(QResizeEvent *event) {
     QWidget::resizeEvent(event);
 
-    _pnl_wdg->move(0,event->size().height() - _pnl_wdg->height());
-    _pnl_wdg->resize(event->size().width(), _pnl_wdg->height());
+    _action_wdg->move(0,event->size().height() - _action_wdg->height());
+    _action_wdg->resize(event->size().width(), _action_wdg->height());
 }
 
 
@@ -336,36 +328,144 @@ void ADeviceView::resizeEvent(QResizeEvent *event) {
 // Event filter.
 // ========================================================================== //
 bool ADeviceView::eventFilter(QObject *obj, QEvent *event) {
-    if(_pnl_wdg == obj) {
-        if(event->type() == QEvent::Enter || event->type() == QEvent::Leave) {
-            QGraphicsOpacityEffect *effect
-                = qobject_cast<QGraphicsOpacityEffect*>(
-                    _pnl_wdg->graphicsEffect());
-
-            if(!effect) return true;
-
-            QPropertyAnimation *animation = new QPropertyAnimation(_pnl_wdg);
-            animation->setTargetObject(effect);
-            animation->setPropertyName("opacity");
-            animation->setDuration(1000);
-
-            if(event->type() == QEvent::Enter) {
-                animation->setStartValue(effect->opacity());
-                animation->setEndValue(1.0);
-
-            } else if(event->type() == QEvent::Leave) {
-                animation->setStartValue(effect->opacity());
-                animation->setEndValue(0.0);
-            }
-
-            connect(animation, &QPropertyAnimation::finished
-                , animation, &QPropertyAnimation::deleteLater);
-
-            animation->start();
-        }
-
-        return true;
+    if(_action_wdg == obj) {
+        if(event->type() == QEvent::Enter) animateShowActionWidget();
+        else if(event->type() == QEvent::Leave) animateHideActionWidget();
     }
 
     return QWidget::eventFilter(obj, event);
 }
+
+
+// ========================================================================== //
+// Create device action.
+// ========================================================================== //
+void ADeviceView::createDeviceAction(ADeviceController *ctrl) {
+    QAction *action = new QAction(this);
+    action->setText(ctrl->identifier().displayName());
+    connect(action, &QAction::triggered, [this,ctrl]() {
+        if(_dev_ctrl) {
+            if(_dev_ctrl == ctrl) return;
+            if(_dev_ctrl->isCapturing()) _dev_ctrl->stop();
+        }
+
+        setController(ctrl);
+
+        QMetaObject::invokeMethod(ctrl, "start", Qt::QueuedConnection);
+    });
+
+    if(ctrl->identifier().hasValue(ADeviceIdentifier::TYPE_URL)) {
+        action->setParent(_url_menu);
+        _url_menu->addAction(action);
+
+    } else {
+        action->setParent(_dev_menu);
+        _dev_menu->addAction(action);
+    }
+}
+
+
+// ========================================================================== //
+// Create action widget.
+// ========================================================================== //
+void ADeviceView::createActionWidget() {
+    QGraphicsOpacityEffect *effect = new QGraphicsOpacityEffect(this);
+    effect->setOpacity(1.0);
+
+    _action_wdg = new QWidget(this);
+    _action_wdg->setMinimumHeight(50);
+    _action_wdg->setGraphicsEffect(effect);
+    _action_wdg->installEventFilter(this);
+
+    QToolButton *resource_tbut = new QToolButton(_action_wdg);
+    resource_tbut->setIcon(QIcon(QStringLiteral(":/images/network.png")));
+    resource_tbut->setIconSize(QSize(24,24));
+    resource_tbut->setToolTip(ADeviceView::tr("Add new resource..."));
+    resource_tbut->setFocusPolicy(Qt::NoFocus);
+    resource_tbut->setAutoRaise(true);
+    resource_tbut->setPopupMode(QToolButton::InstantPopup);
+    resource_tbut->setMenu(_url_menu);
+
+    QToolButton *device_tbut = new QToolButton(_action_wdg);
+    device_tbut->setIcon(QIcon(QStringLiteral(":/images/camera.png")));
+    device_tbut->setIconSize(QSize(24,24));
+    device_tbut->setToolTip(ADeviceView::tr("Add new device..."));
+    device_tbut->setFocusPolicy(Qt::NoFocus);
+    device_tbut->setAutoRaise(true);
+    device_tbut->setPopupMode(QToolButton::InstantPopup);
+    device_tbut->setMenu(_dev_menu);
+
+    QToolButton *start_tbut = new QToolButton(_action_wdg);
+    start_tbut->setIcon(QIcon(QStringLiteral(":/images/start.png")));
+    start_tbut->setIconSize(QSize(24,24));
+    start_tbut->setToolTip(ADeviceView::tr("Start"));
+    start_tbut->setFocusPolicy(Qt::NoFocus);
+    start_tbut->setAutoRaise(true);
+    connect(start_tbut, &QToolButton::clicked, [this]() {
+        if(_dev_ctrl) _dev_ctrl->start();
+    });
+
+    QToolButton *stop_tbut = new QToolButton(_action_wdg);
+    stop_tbut->setIcon(QIcon(QStringLiteral(":/images/stop.png")));
+    stop_tbut->setIconSize(QSize(24,24));
+    stop_tbut->setToolTip(ADeviceView::tr("Stop"));
+    stop_tbut->setFocusPolicy(Qt::NoFocus);
+    stop_tbut->setAutoRaise(true);
+    connect(stop_tbut, &QToolButton::clicked, [this]() {
+        if(_dev_ctrl) _dev_ctrl->stop();
+    });
+
+    QHBoxLayout *layout = new QHBoxLayout();
+    layout->setSpacing(0);
+    layout->setMargin(4);
+    layout->addWidget(resource_tbut);
+    layout->addWidget(device_tbut);
+    layout->addStretch(1);
+    layout->addWidget(start_tbut);
+    layout->addWidget(stop_tbut);
+    layout->addStretch(1);
+
+    _action_wdg->setLayout(layout);
+
+    QMetaObject::invokeMethod(this, "animateHideActionWidget"
+        , Qt::QueuedConnection);
+}
+
+
+// ========================================================================== //
+// Animate action widget.
+// ========================================================================== //
+void ADeviceView::animateActionWidget(bool showed) {
+    if(_action_wdg_animate_freezed) return;
+
+    QGraphicsOpacityEffect *effect
+        = qobject_cast<QGraphicsOpacityEffect*>(_action_wdg->graphicsEffect());
+
+    if(!effect) return;
+
+    QPropertyAnimation *animation = new QPropertyAnimation(_action_wdg);
+    animation->setTargetObject(effect);
+    animation->setPropertyName("opacity");
+    animation->setDuration(1000);
+    animation->setStartValue(effect->opacity());
+
+    if(showed) animation->setEndValue(1.0);
+    else animation->setEndValue(0.0);
+
+    connect(animation, &QPropertyAnimation::finished
+        , animation, &QPropertyAnimation::deleteLater);
+
+    animation->start();
+}
+
+
+// ========================================================================== //
+// Animate show action widget.
+// ========================================================================== //
+void ADeviceView::animateShowActionWidget() {animateActionWidget(true);}
+
+
+// ========================================================================== //
+// Animate hide action widget.
+// ========================================================================== //
+void ADeviceView::animateHideActionWidget() {animateActionWidget(false);}

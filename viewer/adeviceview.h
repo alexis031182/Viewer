@@ -5,6 +5,8 @@
 
 #include <QtWidgets/QWidget>
 
+class QMenu;
+
 class ADeviceController;
 class AImageWidget;
 
@@ -35,11 +37,31 @@ class ADeviceView : public QWidget {
         virtual bool eventFilter(QObject *obj, QEvent *event);
 
     private:
+        bool _action_wdg_animate_freezed;
+
         AImageWidget *_img_wdg;
 
-        QWidget *_pnl_wdg;
+        QMenu *_url_menu, *_dev_menu;
+
+        QWidget *_action_wdg;
 
         QPointer<ADeviceController> _dev_ctrl;
+
+        //! Create device action.
+        void createDeviceAction(ADeviceController *ctrl);
+
+        //! Create action widget.
+        void createActionWidget();
+
+        //! Animate action widget.
+        void animateActionWidget(bool showed);
+
+    private slots:
+        //! Animate show action widget.
+        void animateShowActionWidget();
+
+        //! Animate hide action widget.
+        void animateHideActionWidget();
 
 };
 

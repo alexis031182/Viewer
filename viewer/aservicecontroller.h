@@ -12,6 +12,9 @@ class ADeviceController;
 class AServiceController : public QObject {
     Q_OBJECT
 
+    signals:
+        void deviceRegistered(ADeviceController *ctrl);
+
     public:
         //! Get instance.
         static AServiceController *instance();
