@@ -5,5 +5,7 @@
         <file>images/stop.png</file>
         <file>images/camera.png</file>
         <file>images/network.png</file>
+        <file>images/accept.png</file>
+        <file>images/reject.png</file>
     </qresource>
 </RCC>

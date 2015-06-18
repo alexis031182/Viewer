@@ -202,13 +202,6 @@ void ADeviceView::contextMenuEvent(QContextMenuEvent *event) {
         }
     }
 
-    QAction *window_remove_action = new QAction(&menu);
-    window_remove_action->setText(ADeviceView::tr("Remove window"));
-    connect(window_remove_action, &QAction::triggered
-        , this, &ADeviceView::deleteLater);
-
-    menu.addSeparator();
-    menu.addAction(window_remove_action);
     menu.exec(event->globalPos());
 
     event->accept();
@@ -319,6 +312,14 @@ void ADeviceView::createActionWidget() {
         if(_dev_ctrl) _dev_ctrl->stop();
     });
 
+    QToolButton *close_tbut = new QToolButton(_action_wdg);
+    close_tbut->setIcon(QIcon(QStringLiteral(":/images/reject.png")));
+    close_tbut->setIconSize(QSize(24,24));
+    close_tbut->setToolTip(ADeviceView::tr("Close"));
+    close_tbut->setFocusPolicy(Qt::NoFocus);
+    close_tbut->setAutoRaise(true);
+    connect(close_tbut, &QToolButton::clicked, this, &ADeviceView::deleteLater);
+
     QHBoxLayout *layout = new QHBoxLayout();
     layout->setSpacing(0);
     layout->setMargin(4);
@@ -328,6 +329,7 @@ void ADeviceView::createActionWidget() {
     layout->addWidget(start_tbut);
     layout->addWidget(stop_tbut);
     layout->addStretch(1);
+    layout->addWidget(close_tbut);
 
     _action_wdg->setLayout(layout);
 
