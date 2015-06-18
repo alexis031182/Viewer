@@ -380,7 +380,7 @@ void ADeviceView::createActionWidget() {
     QToolButton *resource_tbut = new QToolButton(_action_wdg);
     resource_tbut->setIcon(QIcon(QStringLiteral(":/images/network.png")));
     resource_tbut->setIconSize(QSize(24,24));
-    resource_tbut->setToolTip(ADeviceView::tr("Add new resource..."));
+    resource_tbut->setToolTip(ADeviceView::tr("Select resource"));
     resource_tbut->setFocusPolicy(Qt::NoFocus);
     resource_tbut->setAutoRaise(true);
     resource_tbut->setPopupMode(QToolButton::InstantPopup);
@@ -389,7 +389,7 @@ void ADeviceView::createActionWidget() {
     QToolButton *device_tbut = new QToolButton(_action_wdg);
     device_tbut->setIcon(QIcon(QStringLiteral(":/images/camera.png")));
     device_tbut->setIconSize(QSize(24,24));
-    device_tbut->setToolTip(ADeviceView::tr("Add new device..."));
+    device_tbut->setToolTip(ADeviceView::tr("Select device"));
     device_tbut->setFocusPolicy(Qt::NoFocus);
     device_tbut->setAutoRaise(true);
     device_tbut->setPopupMode(QToolButton::InstantPopup);
