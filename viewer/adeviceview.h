@@ -29,9 +29,6 @@ class ADeviceView : public QWidget {
         void setController(ADeviceController *ctrl);
 
     protected:
-        //! Context menu event.
-        virtual void contextMenuEvent(QContextMenuEvent *event);
-
         //! Resize event.
         virtual void resizeEvent(QResizeEvent *event);
 
@@ -43,9 +40,9 @@ class ADeviceView : public QWidget {
 
         AImageWidget *_img_wdg;
 
-        QMenu *_url_menu, *_dev_menu;
+        QMenu *_url_menu, *_dev_menu, *_flt_menu;
 
-        QActionGroup *_url_act_grp, *_dev_act_grp;
+        QActionGroup *_url_act_grp, *_dev_act_grp, *_flt_act_grp;
 
         QLabel *_title_label;
 
@@ -55,6 +52,9 @@ class ADeviceView : public QWidget {
 
         //! Create device action.
         void createDeviceAction(ADeviceController *ctrl);
+
+        //! Create filter group action.
+        void createFilterGroupAction(int grp_i);
 
         //! Create title widget.
         void createTitleWidget();

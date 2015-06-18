@@ -2,7 +2,6 @@
 #include <QtCore/QPropertyAnimation>
 #include <QtCore/QTimer>
 
-#include <QtGui/QContextMenuEvent>
 #include <QtGui/QResizeEvent>
 
 #include <QtWidgets/QGraphicsOpacityEffect>
@@ -43,8 +42,17 @@ ADeviceView::ADeviceView(QWidget *parent)
         _action_wdg_animate_freezed = false;
     });
 
+    _flt_menu = new QMenu(this);
+    connect(_flt_menu, &QMenu::aboutToShow, [this]() {
+        _action_wdg_animate_freezed = true;
+    });
+    connect(_flt_menu, &QMenu::aboutToHide, [this]() {
+        _action_wdg_animate_freezed = false;
+    });
+
     _url_act_grp = new QActionGroup(this);
     _dev_act_grp = new QActionGroup(this);
+    _flt_act_grp = new QActionGroup(this);
 
     foreach(ADeviceController *ctrl
         , AServiceController::instance()->devices())
@@ -53,6 +61,24 @@ ADeviceView::ADeviceView(QWidget *parent)
     connect(AServiceController::instance()
         , &AServiceController::deviceRegistered
         , this, &ADeviceView::createDeviceAction);
+
+    QAbstractItemModel *flt_model
+        = AServiceController::instance()->videoFilterModel();
+
+    if(flt_model) {
+        QAction *flt_disabled_action = new QAction(_flt_act_grp);
+        flt_disabled_action->setText(ADeviceView::tr("Disabled"));
+        flt_disabled_action->setCheckable(true);
+        flt_disabled_action->setChecked(true);
+        connect(flt_disabled_action, &QAction::triggered, [this]() {
+            if(_dev_ctrl) _dev_ctrl->unsetFilter();
+        });
+
+        _flt_menu->addAction(flt_disabled_action);
+
+        for(int i = 0, n = flt_model->rowCount(); i < n; ++i)
+            createFilterGroupAction(i);
+    }
 
     setLayout(new QVBoxLayout());
     layout()->setMargin(0);
@@ -85,135 +111,6 @@ void ADeviceView::setController(ADeviceController *ctrl) {
 
         animateShowTitleWidget();
     }
-}
-
-
-// ========================================================================== //
-// Context menu event.
-// ========================================================================== //
-void ADeviceView::contextMenuEvent(QContextMenuEvent *event) {
-    QMenu menu(this);
-
-    QList<ADeviceController*> devices
-        = AServiceController::instance()->devices();
-
-    if(!devices.isEmpty()) {
-        const QString cur_dsp_name
-            = (_dev_ctrl) ? _dev_ctrl->identifier().displayName() : QString();
-
-        QListIterator<ADeviceController*> itr(devices);
-        while(itr.hasNext()) {
-            ADeviceController *dev_ctrl = itr.next();
-
-            QAction *dev_action = new QAction(&menu);
-
-            const QString dev_dsp_name = dev_ctrl->identifier().displayName();
-            if(!cur_dsp_name.isEmpty() && dev_dsp_name == cur_dsp_name) {
-                dev_action->setCheckable(true);
-                dev_action->setChecked(true);
-
-            } else {
-                connect(dev_action, &QAction::triggered, [this,dev_ctrl]() {
-                    if(_dev_ctrl && _dev_ctrl->isCapturing())
-                        _dev_ctrl->stop();
-
-                    setController(dev_ctrl);
-
-                    QMetaObject::invokeMethod(dev_ctrl, "start"
-                        , Qt::QueuedConnection);
-                });
-            }
-
-            dev_action->setText(dev_dsp_name);
-
-            menu.addAction(dev_action);
-        }
-
-        menu.addSeparator();
-    }
-
-    QAbstractItemModel *vid_flt_model
-        = AServiceController::instance()->videoFilterModel();
-
-    if(vid_flt_model && vid_flt_model->rowCount()) {
-        menu.addSeparator();
-
-        QAction *flt_unset_action = new QAction(&menu);
-        flt_unset_action->setText(ADeviceView::tr("Unset"));
-        connect(flt_unset_action, &QAction::triggered, [this]() {
-            if(_dev_ctrl) _dev_ctrl->unsetFilter();
-        });
-
-        menu.addAction(flt_unset_action);
-
-        for(int i = 0, n = vid_flt_model->rowCount(); i < n; ++i) {
-            QModelIndex grp_idx = vid_flt_model->index(i,0);
-            if(!grp_idx.isValid()) continue;
-
-            QAction *flt_action = new QAction(&menu);
-            flt_action->setText(vid_flt_model->data(grp_idx).toString());
-
-            if(vid_flt_model->rowCount(grp_idx)) {
-                QMenu *grp_menu = new QMenu(&menu);
-                for(int ii = 0, nn = vid_flt_model->rowCount(grp_idx)
-                    ; ii < nn; ++ii) {
-
-                    QModelIndex name_idx = vid_flt_model->index(ii, 0, grp_idx);
-                    if(!name_idx.isValid()) continue;
-
-                    QModelIndex file_idx = vid_flt_model->index(ii, 1, grp_idx);
-                    if(!file_idx.isValid()) continue;
-
-                    const QString name
-                        = vid_flt_model->data(name_idx).toString();
-                    const QString file
-                        = vid_flt_model->data(file_idx).toString();
-
-                    QAction *action = new QAction(name, grp_menu);
-                    connect(action, &QAction::triggered, [this,name,file]() {
-                        if(_dev_ctrl) {
-                            if(_dev_ctrl->filter() != file)
-                                _dev_ctrl->setFilter(file);
-
-                            QWidget *wdg = _dev_ctrl->filterProperties();
-                            if(wdg) {
-                                QDialog dlg(this);
-                                dlg.setWindowTitle(name);
-                                dlg.setLayout(new QVBoxLayout());
-
-                                wdg->setParent(&dlg);
-
-                                dlg.layout()->addWidget(wdg);
-
-                                QDialogButtonBox *btn_box
-                                    = new QDialogButtonBox(&dlg);
-                                btn_box->setStandardButtons(
-                                    QDialogButtonBox::Ok);
-
-                                connect(btn_box, &QDialogButtonBox::accepted
-                                    , &dlg, &QDialog::accept);
-                                connect(btn_box, &QDialogButtonBox::rejected
-                                    , &dlg, &QDialog::reject);
-
-                                dlg.layout()->addWidget(btn_box);
-                                dlg.exec();
-                            }
-                        }
-                    });
-
-                    grp_menu->addAction(action);
-                }
-
-                flt_action->setMenu(grp_menu);
-            }
-
-            menu.addAction(flt_action);
-        }
-    }
-
-    menu.exec(event->globalPos());
-
-    event->accept();
 }
 
 
@@ -271,6 +168,72 @@ void ADeviceView::createDeviceAction(ADeviceController *ctrl) {
     } else {
         _dev_menu->addAction(action);
     }
+}
+
+
+// ========================================================================== //
+// Create filter group action.
+// ========================================================================== //
+void ADeviceView::createFilterGroupAction(int grp_i) {
+    QAbstractItemModel *model
+        = AServiceController::instance()->videoFilterModel();
+
+    QModelIndex grp_idx = model->index(grp_i,0);
+    if(!grp_idx.isValid()) return;
+
+    QAction *grp_action = new QAction(_flt_act_grp);
+    grp_action->setText(model->data(grp_idx).toString());
+
+    if(model->rowCount(grp_idx)) {
+        QMenu *grp_menu = new QMenu(_flt_menu);
+        for(int i = 0, n = model->rowCount(grp_idx); i < n; ++i) {
+            QModelIndex name_idx = model->index(i, 0, grp_idx);
+            if(!name_idx.isValid()) continue;
+
+            QModelIndex file_idx = model->index(i, 1, grp_idx);
+            if(!file_idx.isValid()) continue;
+
+            const QString name = model->data(name_idx).toString();
+            const QString file = model->data(file_idx).toString();
+
+            QAction *action = new QAction(name, _flt_act_grp);
+            action->setCheckable(true);
+            connect(action, &QAction::triggered, [this,name,file]() {
+                if(!_dev_ctrl) return;
+
+                if(_dev_ctrl->filter() != file)
+                    _dev_ctrl->setFilter(file);
+
+                QWidget *flt_wdg = _dev_ctrl->filterProperties();
+                if(flt_wdg) {
+                    QDialog dlg(this);
+                    dlg.setWindowTitle(name);
+                    dlg.setLayout(new QVBoxLayout());
+
+                    flt_wdg->setParent(&dlg);
+
+                    dlg.layout()->addWidget(flt_wdg);
+
+                    QDialogButtonBox *btn_box = new QDialogButtonBox(&dlg);
+                    btn_box->setStandardButtons(QDialogButtonBox::Ok);
+
+                    connect(btn_box, &QDialogButtonBox::accepted
+                        , &dlg, &QDialog::accept);
+                    connect(btn_box, &QDialogButtonBox::rejected
+                        , &dlg, &QDialog::reject);
+
+                    dlg.layout()->addWidget(btn_box);
+                    dlg.exec();
+                }
+            });
+
+            grp_menu->addAction(action);
+        }
+
+        grp_action->setMenu(grp_menu);
+    }
+
+    _flt_menu->addAction(grp_action);
 }
 
 
@@ -357,6 +320,15 @@ void ADeviceView::createActionWidget() {
     device_tbut->setPopupMode(QToolButton::InstantPopup);
     device_tbut->setMenu(_dev_menu);
 
+    QToolButton *filter_tbut = new QToolButton(_action_wdg);
+    filter_tbut->setIcon(QIcon(QStringLiteral(":/images/filter.png")));
+    filter_tbut->setIconSize(QSize(24,24));
+    filter_tbut->setToolTip(ADeviceView::tr("Select filter"));
+    filter_tbut->setFocusPolicy(Qt::NoFocus);
+    filter_tbut->setAutoRaise(true);
+    filter_tbut->setPopupMode(QToolButton::InstantPopup);
+    filter_tbut->setMenu(_flt_menu);
+
     QToolButton *start_tbut = new QToolButton(_action_wdg);
     start_tbut->setIcon(QIcon(QStringLiteral(":/images/start.png")));
     start_tbut->setIconSize(QSize(24,24));
@@ -390,6 +362,7 @@ void ADeviceView::createActionWidget() {
     layout->setMargin(4);
     layout->addWidget(resource_tbut);
     layout->addWidget(device_tbut);
+    layout->addWidget(filter_tbut);
     layout->addStretch(1);
     layout->addWidget(start_tbut);
     layout->addWidget(stop_tbut);

@@ -7,5 +7,6 @@
         <file>images/network.png</file>
         <file>images/accept.png</file>
         <file>images/reject.png</file>
+        <file>images/filter.png</file>
     </qresource>
 </RCC>
