@@ -6,6 +6,7 @@
 #include <QtWidgets/QWidget>
 
 class QActionGroup;
+class QLabel;
 class QMenu;
 
 class ADeviceController;
@@ -46,12 +47,20 @@ class ADeviceView : public QWidget {
 
         QActionGroup *_url_act_grp, *_dev_act_grp;
 
+        QLabel *_title_label;
+
         QWidget *_action_wdg;
 
         QPointer<ADeviceController> _dev_ctrl;
 
         //! Create device action.
         void createDeviceAction(ADeviceController *ctrl);
+
+        //! Create title widget.
+        void createTitleWidget();
+
+        //! Animate title widget.
+        void animateTitleWidget(bool showed);
 
         //! Create action widget.
         void createActionWidget();
@@ -60,6 +69,12 @@ class ADeviceView : public QWidget {
         void animateActionWidget(bool showed);
 
     private slots:
+        //! Animate show title widget.
+        void animateShowTitleWidget();
+
+        //! Animate hide title widget.
+        void animateHideTitleWidget();
+
         //! Animate show action widget.
         void animateShowActionWidget();
 

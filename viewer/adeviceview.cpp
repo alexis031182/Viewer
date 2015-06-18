@@ -1,5 +1,6 @@
 #include <QtCore/QAbstractItemModel>
 #include <QtCore/QPropertyAnimation>
+#include <QtCore/QTimer>
 
 #include <QtGui/QContextMenuEvent>
 #include <QtGui/QResizeEvent>
@@ -9,6 +10,7 @@
 #include <QtWidgets/QToolButton>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QLayout>
+#include <QtWidgets/QLabel>
 #include <QtWidgets/QMenu>
 
 #include "widgets/aimagewidget.h"
@@ -57,6 +59,7 @@ ADeviceView::ADeviceView(QWidget *parent)
     layout()->setSpacing(0);
     layout()->addWidget(_img_wdg);
 
+    createTitleWidget();
     createActionWidget();
 }
 
@@ -75,7 +78,13 @@ void ADeviceView::setController(ADeviceController *ctrl) {
 
     _dev_ctrl = ctrl;
 
-    if(_dev_ctrl) _dev_ctrl->setImageWidget(_img_wdg);
+    if(_dev_ctrl) {
+        _dev_ctrl->setImageWidget(_img_wdg);
+
+        _title_label->setText(_dev_ctrl->identifier().displayName());
+
+        animateShowTitleWidget();
+    }
 }
 
 
@@ -214,6 +223,9 @@ void ADeviceView::contextMenuEvent(QContextMenuEvent *event) {
 void ADeviceView::resizeEvent(QResizeEvent *event) {
     QWidget::resizeEvent(event);
 
+    _title_label->move(0,0);
+    _title_label->resize(event->size().width(), _title_label->height());
+
     _action_wdg->move(0,event->size().height() - _action_wdg->height());
     _action_wdg->resize(event->size().width(), _action_wdg->height());
 }
@@ -259,6 +271,59 @@ void ADeviceView::createDeviceAction(ADeviceController *ctrl) {
     } else {
         _dev_menu->addAction(action);
     }
+}
+
+
+// ========================================================================== //
+// Create title widget.
+// ========================================================================== //
+void ADeviceView::createTitleWidget() {
+    QGraphicsOpacityEffect *effect = new QGraphicsOpacityEffect(this);
+    effect->setOpacity(1.0);
+
+    _title_label = new QLabel(this);
+    _title_label->setMinimumHeight(50);
+    _title_label->setGraphicsEffect(effect);
+    _title_label->setAlignment(Qt::AlignTop|Qt::AlignLeft);
+    _title_label->setMargin(8);
+}
+
+
+// ========================================================================== //
+// Animate title widget.
+// ========================================================================== //
+void ADeviceView::animateTitleWidget(bool showed) {
+    QGraphicsOpacityEffect *effect
+        = qobject_cast<QGraphicsOpacityEffect*>(_title_label->graphicsEffect());
+
+    if(!effect) return;
+
+    QPropertyAnimation *animation = new QPropertyAnimation(_title_label);
+    animation->setTargetObject(effect);
+    animation->setPropertyName("opacity");
+    animation->setDuration(1000);
+    animation->setStartValue(effect->opacity());
+
+    if(showed) {
+        animation->setEndValue(1.0);
+
+        QTimer *timer = new QTimer(_title_label);
+        timer->setSingleShot(true);
+        timer->setInterval(5000);
+
+        connect(animation, &QPropertyAnimation::finished
+            , timer, static_cast<void(QTimer::*)()>(&QTimer::start));
+        connect(timer, &QTimer::timeout
+            , this, &ADeviceView::animateHideTitleWidget);
+        connect(timer, &QTimer::timeout
+            , timer, &QTimer::deleteLater);
+
+    } else animation->setEndValue(0.0);
+
+    connect(animation, &QPropertyAnimation::finished
+        , animation, &QPropertyAnimation::deleteLater);
+
+    animation->start();
 }
 
 
@@ -363,6 +428,18 @@ void ADeviceView::animateActionWidget(bool showed) {
 
     animation->start();
 }
+
+
+// ========================================================================== //
+// Animate show title widget.
+// ========================================================================== //
+void ADeviceView::animateShowTitleWidget() {animateTitleWidget(true);}
+
+
+// ========================================================================== //
+// Animate hide title widget.
+// ========================================================================== //
+void ADeviceView::animateHideTitleWidget() {animateTitleWidget(false);}
 
 
 // ========================================================================== //
