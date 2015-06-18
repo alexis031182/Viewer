@@ -28,8 +28,16 @@ class ADeviceView : public QWidget {
         //! Context menu event.
         virtual void contextMenuEvent(QContextMenuEvent *event);
 
+        //! Resize event.
+        virtual void resizeEvent(QResizeEvent *event);
+
+        //! Event filter.
+        virtual bool eventFilter(QObject *obj, QEvent *event);
+
     private:
         AImageWidget *_img_wdg;
+
+        QWidget *_pnl_wdg;
 
         QPointer<ADeviceController> _dev_ctrl;
 

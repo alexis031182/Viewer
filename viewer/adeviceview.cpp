@@ -1,8 +1,12 @@
 #include <QtCore/QAbstractItemModel>
+#include <QtCore/QPropertyAnimation>
 
 #include <QtGui/QContextMenuEvent>
+#include <QtGui/QResizeEvent>
 
+#include <QtWidgets/QGraphicsOpacityEffect>
 #include <QtWidgets/QDialogButtonBox>
+#include <QtWidgets/QToolButton>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QLayout>
 #include <QtWidgets/QMenu>
@@ -20,6 +24,42 @@
 // ========================================================================== //
 ADeviceView::ADeviceView(QWidget *parent) : QWidget(parent) {
     _img_wdg = new AImageWidget(this);
+
+    QGraphicsOpacityEffect *effect = new QGraphicsOpacityEffect(this);
+    effect->setOpacity(0.0);
+
+    _pnl_wdg = new QWidget(this);
+    _pnl_wdg->setMinimumHeight(50);
+    _pnl_wdg->setGraphicsEffect(effect);
+    _pnl_wdg->installEventFilter(this);
+
+    QToolButton *pnl_start_tbut = new QToolButton(_pnl_wdg);
+    pnl_start_tbut->setIcon(QIcon(QStringLiteral(":/images/start.png")));
+    pnl_start_tbut->setIconSize(QSize(24,24));
+    pnl_start_tbut->setToolTip(ADeviceView::tr("Start"));
+    pnl_start_tbut->setFocusPolicy(Qt::NoFocus);
+    connect(pnl_start_tbut, &QToolButton::clicked, [this]() {
+        if(_dev_ctrl) _dev_ctrl->start();
+    });
+
+    QToolButton *pnl_stop_tbut = new QToolButton(_pnl_wdg);
+    pnl_stop_tbut->setIcon(QIcon(QStringLiteral(":/images/stop.png")));
+    pnl_stop_tbut->setIconSize(QSize(24,24));
+    pnl_stop_tbut->setToolTip(ADeviceView::tr("Stop"));
+    pnl_stop_tbut->setFocusPolicy(Qt::NoFocus);
+    connect(pnl_stop_tbut, &QToolButton::clicked, [this]() {
+        if(_dev_ctrl) _dev_ctrl->stop();
+    });
+
+    QHBoxLayout *pnl_layout = new QHBoxLayout();
+    pnl_layout->setSpacing(0);
+    pnl_layout->setMargin(0);
+    pnl_layout->addStretch(1);
+    pnl_layout->addWidget(pnl_start_tbut);
+    pnl_layout->addWidget(pnl_stop_tbut);
+    pnl_layout->addStretch(1);
+
+    _pnl_wdg->setLayout(pnl_layout);
 
     setLayout(new QVBoxLayout());
     layout()->setMargin(0);
@@ -278,4 +318,54 @@ void ADeviceView::contextMenuEvent(QContextMenuEvent *event) {
     menu.exec(event->globalPos());
 
     event->accept();
+}
+
+
+// ========================================================================== //
+// Resize event.
+// ========================================================================== //
+void ADeviceView::resizeEvent(QResizeEvent *event) {
+    QWidget::resizeEvent(event);
+
+    _pnl_wdg->move(0,event->size().height() - _pnl_wdg->height());
+    _pnl_wdg->resize(event->size().width(), _pnl_wdg->height());
+}
+
+
+// ========================================================================== //
+// Event filter.
+// ========================================================================== //
+bool ADeviceView::eventFilter(QObject *obj, QEvent *event) {
+    if(_pnl_wdg == obj) {
+        if(event->type() == QEvent::Enter || event->type() == QEvent::Leave) {
+            QGraphicsOpacityEffect *effect
+                = qobject_cast<QGraphicsOpacityEffect*>(
+                    _pnl_wdg->graphicsEffect());
+
+            if(!effect) return true;
+
+            QPropertyAnimation *animation = new QPropertyAnimation(_pnl_wdg);
+            animation->setTargetObject(effect);
+            animation->setPropertyName("opacity");
+            animation->setDuration(1000);
+
+            if(event->type() == QEvent::Enter) {
+                animation->setStartValue(effect->opacity());
+                animation->setEndValue(1.0);
+
+            } else if(event->type() == QEvent::Leave) {
+                animation->setStartValue(effect->opacity());
+                animation->setEndValue(0.0);
+            }
+
+            connect(animation, &QPropertyAnimation::finished
+                , animation, &QPropertyAnimation::deleteLater);
+
+            animation->start();
+        }
+
+        return true;
+    }
+
+    return QWidget::eventFilter(obj, event);
 }
