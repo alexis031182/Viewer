@@ -274,54 +274,6 @@ void ACaptureThread::run() {
                 , Qt::QueuedConnection, Q_ARG(QImage,img));
         }
 
-        /*_mutex.lock();
-        bool has_filter = (_filter) ? true : false;
-        _mutex.unlock();
-
-        QImage img;
-        if(has_filter) {
-            cv::Mat mat
-                = cv::Mat::zeros(av_dec_ctx->height, av_dec_ctx->width
-                    , CV_8UC3);
-
-            for(int y = 0, rows = av_dec_ctx->height; y < rows; ++y) {
-                const int q1 = y * av_cap_frm->linesize[0];
-
-                for(int x = 0, cols = av_dec_ctx->width; x < cols; ++x) {
-                    const int q2 = q1 + x * 3;
-
-                    cv::Vec3b &d = mat.at<cv::Vec3b>(y,x);
-                    d[0] = av_cap_frm->data[0][q2+0];
-                    d[1] = av_cap_frm->data[0][q2+1];
-                    d[2] = av_cap_frm->data[0][q2+2];
-                }
-            }
-
-            _mutex.lock();
-            if(_filter) _filter->run(mat);
-            _mutex.unlock();
-
-            img = QImage(mat.data, mat.cols, mat.rows, mat.step
-                , QImage::Format_RGB888);
-
-            img = img.convertToFormat(QImage::Format_ARGB32_Premultiplied);
-
-        } else {
-            const int &w = av_cap_frm->width;
-            const int &h = av_cap_frm->height;
-
-            img = QImage(w, h, QImage::Format_RGB888);
-            for(int row = 0, bpl = w*3; row < av_cap_frm->height; ++row) {
-                memcpy(img.scanLine(row)
-                    , av_cap_frm->data[0] + row*av_cap_frm->linesize[0], bpl);
-            }
-
-            img = img.convertToFormat(QImage::Format_ARGB32_Premultiplied);
-        }
-
-        QMetaObject::invokeMethod(this, "captured"
-            , Qt::QueuedConnection, Q_ARG(QImage,img));*/
-
         int cur_dur = stream_timer.elapsed();
         if(vid_strm_avg_dur > cur_dur)
             QThread::msleep(vid_strm_avg_dur - cur_dur);
