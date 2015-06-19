@@ -1,13 +1,13 @@
-#ifndef ABLURFILTER_H
-#define ABLURFILTER_H
+#ifndef ADFTFILTER_H
+#define ADFTFILTER_H
 
 #include <QtCore/QObject>
 #include <QtCore/QMutex>
 
-#include "blurfilter_global.h"
+#include "dftfilter_global.h"
 #include "afilterinterface.h"
 
-class BLURFILTERSHARED_EXPORT ABlurFilter
+class DFTFILTERSHARED_EXPORT ADftFilter
     : public QObject, public AFilterInterface {
 
     Q_OBJECT
@@ -16,10 +16,10 @@ class BLURFILTERSHARED_EXPORT ABlurFilter
 
     public:
         //! Constructor.
-        explicit ABlurFilter();
+        explicit ADftFilter();
 
         //! Destructor.
-        virtual ~ABlurFilter() {}
+        virtual ~ADftFilter() {}
 
         //! Get display group.
         virtual QString displayGroup() const;
@@ -34,12 +34,6 @@ class BLURFILTERSHARED_EXPORT ABlurFilter
         virtual void run(cv::Mat &matrix);
 
     private:
-        enum Type {TYPE_NORMALIZED, TYPE_GAUSSIAN, TYPE_MEDIAN};
-
-        Type _type;
-
-        int _krnl_size;
-
         QMutex _mutex;
 
 };
