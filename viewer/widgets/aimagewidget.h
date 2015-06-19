@@ -19,11 +19,11 @@ class AImageWidget : public QWidget {
         virtual QSize sizeHint() const;
 
         //! Get image.
-        QImage image() const;
+        virtual QImage image() const;
 
     public slots:
         //! Set image.
-        void setImage(const QImage &img);
+        virtual void setImage(const QImage &img);
 
     protected:
         //! Paint event.
