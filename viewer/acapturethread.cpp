@@ -15,8 +15,8 @@ extern "C" {
 // ========================================================================== //
 // Constructor.
 // ========================================================================== //
-ACaptureThread::ACaptureThread(QObject *parent)
-    : QThread(parent), _filter(NULL) {}
+ACaptureThread::ACaptureThread(QObject *parent) : QThread(parent)
+    , _filter(NULL), _vid_strm_cap_avg_fps(0), _vid_strm_prw_avg_fps(0) {}
 
 
 // ========================================================================== //
@@ -39,6 +39,22 @@ void ACaptureThread::setFilter(AFilterInterface *filter) {
 // Unset filter.
 // ========================================================================== //
 void ACaptureThread::unsetFilter() {setFilter(NULL);}
+
+
+// ========================================================================== //
+// Get capture fps.
+// ========================================================================== //
+double ACaptureThread::captureFps() {
+    QMutexLocker locker(&_mutex); return _vid_strm_cap_avg_fps;
+}
+
+
+// ========================================================================== //
+// Get preview fps.
+// ========================================================================== //
+double ACaptureThread::previewFps() {
+    QMutexLocker locker(&_mutex); return _vid_strm_prw_avg_fps;
+}
 
 
 // ========================================================================== //
@@ -184,6 +200,10 @@ void ACaptureThread::run() {
 
     AVFrame *av_vid_frm = av_frame_alloc();
 
+    const AVRational &av_cap_frm_rate = av_vid_strm->avg_frame_rate;
+    setCaptureFps(double(av_cap_frm_rate.num) / double(av_cap_frm_rate.den));
+    const int vid_strm_avg_dur = 1000 / int(_vid_strm_cap_avg_fps);
+
     QElapsedTimer stream_timer;
     stream_timer.start();
 
@@ -265,15 +285,12 @@ void ACaptureThread::run() {
         QMetaObject::invokeMethod(this, "captured"
             , Qt::QueuedConnection, Q_ARG(QImage,img));
 
-        const int avg_fps
-            = av_vid_strm->avg_frame_rate.num
-                / av_vid_strm->avg_frame_rate.den;
+        int cur_dur = stream_timer.elapsed();
+        if(vid_strm_avg_dur > cur_dur)
+            QThread::msleep(vid_strm_avg_dur - cur_dur);
 
-        const int avg_dur = 1000 / avg_fps;
-        const int cur_dur = stream_timer.elapsed();
-        if(avg_dur > cur_dur) QThread::msleep(avg_dur - cur_dur);
-
-        stream_timer.restart();
+        cur_dur = stream_timer.restart();
+        setPreviewFps(1000. / double(std::max(1,cur_dur)));
     }
 
     av_frame_free(&av_vid_frm);
@@ -282,6 +299,40 @@ void ACaptureThread::run() {
     avcodec_close(av_vid_strm->codec);
     avformat_close_input(&av_fmt_ctx);
 
+    setCaptureFps(0);
+
     QMetaObject::invokeMethod(this, "captured"
         , Qt::QueuedConnection, Q_ARG(QImage,QImage()));
+}
+
+
+// ========================================================================== //
+// Set capture fps.
+// ========================================================================== //
+void ACaptureThread::setCaptureFps(double fps) {
+    _mutex.lock();
+    const bool stilled = (_vid_strm_cap_avg_fps == fps) ? true : false;
+    _vid_strm_cap_avg_fps = fps;
+    _mutex.unlock();
+
+    if(!stilled) {
+        QMetaObject::invokeMethod(this, "captureFpsChanged"
+            , Qt::QueuedConnection, Q_ARG(double,fps));
+    }
+}
+
+
+// ========================================================================== //
+// Set preview fps.
+// ========================================================================== //
+void ACaptureThread::setPreviewFps(double fps) {
+    _mutex.lock();
+    const bool stilled = (_vid_strm_prw_avg_fps == fps) ? true : false;
+    _vid_strm_prw_avg_fps = fps;
+    _mutex.unlock();
+
+    if(!stilled) {
+        QMetaObject::invokeMethod(this, "previewFpsChanged"
+            , Qt::QueuedConnection, Q_ARG(double,fps));
+    }
 }

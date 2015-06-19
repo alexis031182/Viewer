@@ -21,6 +21,9 @@ class ADeviceController : public QObject {
         void stopping();
         void stopped();
 
+        void captureFpsChanged(double fps);
+        void previewFpsChanged(double fps);
+
         void failed();
 
     public:

@@ -12,6 +12,11 @@
 ADeviceController::ADeviceController(QObject *parent)
     : QObject(parent), _capture(new ACaptureThread(this)) {
 
+    connect(_capture, &ACaptureThread::captureFpsChanged
+        , this, &ADeviceController::captureFpsChanged);
+    connect(_capture, &ACaptureThread::previewFpsChanged
+        , this, &ADeviceController::previewFpsChanged);
+
     connect(_capture, &ACaptureThread::failed
         , this, &ADeviceController::failed);
     connect(_capture, &ACaptureThread::finished

@@ -11,6 +11,10 @@ class ACaptureThread : public QThread {
 
     signals:
         void captured(const QImage &img);
+
+        void captureFpsChanged(double fps);
+        void previewFpsChanged(double fps);
+
         void failed();
 
     public:
@@ -28,6 +32,12 @@ class ACaptureThread : public QThread {
 
         //! Unset filter.
         void unsetFilter();
+
+        //! Get capture fps.
+        double captureFps();
+
+        //! Get preview fps.
+        double previewFps();
 
         //! Get device name.
         QString deviceName();
@@ -49,9 +59,17 @@ class ACaptureThread : public QThread {
     private:
         AFilterInterface *_filter;
 
+        double _vid_strm_cap_avg_fps, _vid_strm_prw_avg_fps;
+
         QString _dev_name, _grp_name;
 
         QMutex _mutex;
+
+        //! Set capture fps.
+        void setCaptureFps(double fps);
+
+        //! Set preview fps.
+        void setPreviewFps(double fps);
 
 };
 

@@ -6,6 +6,7 @@
 #include <QtWidgets/QWidget>
 
 class QActionGroup;
+class QLCDNumber;
 class QLabel;
 class QMenu;
 
@@ -48,6 +49,8 @@ class ADeviceView : public QWidget {
 
         QWidget *_action_wdg;
 
+        QLCDNumber *_capture_fps_lcd, *_preview_fps_lcd;
+
         QPointer<ADeviceController> _dev_ctrl;
 
         //! Create device action.
@@ -80,6 +83,12 @@ class ADeviceView : public QWidget {
 
         //! Animate hide action widget.
         void animateHideActionWidget();
+
+        //! On capture fps changed.
+        void onCaptureFpsChanged(double fps);
+
+        //! On preview fps changed.
+        void onPreviewFpsChanged(double fps);
 
 };
 

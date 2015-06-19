@@ -7,6 +7,7 @@
 #include <QtWidgets/QGraphicsOpacityEffect>
 #include <QtWidgets/QDialogButtonBox>
 #include <QtWidgets/QToolButton>
+#include <QtWidgets/QLCDNumber>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QLayout>
 #include <QtWidgets/QLabel>
@@ -100,7 +101,14 @@ ADeviceController *ADeviceView::controller() const {return _dev_ctrl;}
 // Set device controller.
 // ========================================================================== //
 void ADeviceView::setController(ADeviceController *ctrl) {
-    if(_dev_ctrl) _dev_ctrl->unsetImageWidget();
+    if(_dev_ctrl) {
+        _dev_ctrl->unsetImageWidget();
+
+        disconnect(_dev_ctrl, &ADeviceController::captureFpsChanged
+            , this, &ADeviceView::onCaptureFpsChanged);
+        disconnect(_dev_ctrl, &ADeviceController::previewFpsChanged
+            , this, &ADeviceView::onPreviewFpsChanged);
+    }
 
     _dev_ctrl = ctrl;
 
@@ -108,8 +116,12 @@ void ADeviceView::setController(ADeviceController *ctrl) {
         _dev_ctrl->setImageWidget(_img_wdg);
 
         _title_label->setText(_dev_ctrl->identifier().displayName());
-
         animateShowTitleWidget();
+
+        connect(_dev_ctrl, &ADeviceController::captureFpsChanged
+            , this, &ADeviceView::onCaptureFpsChanged);
+        connect(_dev_ctrl, &ADeviceController::previewFpsChanged
+            , this, &ADeviceView::onPreviewFpsChanged);
     }
 }
 
@@ -349,6 +361,30 @@ void ADeviceView::createActionWidget() {
         if(_dev_ctrl) _dev_ctrl->stop();
     });
 
+    QLabel *capture_fps_label = new QLabel(_action_wdg);
+    capture_fps_label->setText(ADeviceView::tr("Capture FPS:"));
+
+    _capture_fps_lcd = new QLCDNumber(_action_wdg);
+    _capture_fps_lcd->setSegmentStyle(QLCDNumber::Flat);
+    _capture_fps_lcd->setSmallDecimalPoint(true);
+    _capture_fps_lcd->setFrameStyle(QFrame::NoFrame);
+    _capture_fps_lcd->setDigitCount(4);
+
+    QLabel *preview_fps_label = new QLabel(_action_wdg);
+    preview_fps_label->setText(ADeviceView::tr("Preview FPS:"));
+
+    _preview_fps_lcd = new QLCDNumber(_action_wdg);
+    _preview_fps_lcd->setSegmentStyle(QLCDNumber::Flat);
+    _preview_fps_lcd->setSmallDecimalPoint(true);
+    _preview_fps_lcd->setFrameStyle(QFrame::NoFrame);
+    _preview_fps_lcd->setDigitCount(4);
+
+    QGridLayout *fps_layout = new QGridLayout();
+    fps_layout->addWidget(capture_fps_label, 0, 0, 1, 1);
+    fps_layout->addWidget(_capture_fps_lcd, 0, 1, 1, 1);
+    fps_layout->addWidget(preview_fps_label, 1, 0, 1, 1);
+    fps_layout->addWidget(_preview_fps_lcd, 1, 1, 1, 1);
+
     QToolButton *close_tbut = new QToolButton(_action_wdg);
     close_tbut->setIcon(QIcon(QStringLiteral(":/images/reject.png")));
     close_tbut->setIconSize(QSize(24,24));
@@ -366,6 +402,8 @@ void ADeviceView::createActionWidget() {
     layout->addStretch(1);
     layout->addWidget(start_tbut);
     layout->addWidget(stop_tbut);
+    layout->addStretch(1);
+    layout->addLayout(fps_layout);
     layout->addStretch(1);
     layout->addWidget(close_tbut);
 
@@ -425,3 +463,19 @@ void ADeviceView::animateShowActionWidget() {animateActionWidget(true);}
 // Animate hide action widget.
 // ========================================================================== //
 void ADeviceView::animateHideActionWidget() {animateActionWidget(false);}
+
+
+// ========================================================================== //
+// On capture fps changed.
+// ========================================================================== //
+void ADeviceView::onCaptureFpsChanged(double fps) {
+    _capture_fps_lcd->display(QString::number(fps,'f',1));
+}
+
+
+// ========================================================================== //
+// On preview fps changed.
+// ========================================================================== //
+void ADeviceView::onPreviewFpsChanged(double fps) {
+    _preview_fps_lcd->display(QString::number(fps,'f',1));
+}
