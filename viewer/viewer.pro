@@ -19,7 +19,8 @@ SOURCES += main.cpp \
     adeviceview.cpp \
     widgets/aurlselector.cpp \
     widgets/amodelselector.cpp \
-    adeviceidentifier.cpp
+    adeviceidentifier.cpp \
+    widgets/amultiimagewidget.cpp
 
 HEADERS += amainwindow.h \
     aservicecontroller.h \
@@ -29,7 +30,8 @@ HEADERS += amainwindow.h \
     adeviceview.h \
     widgets/aurlselector.h \
     widgets/amodelselector.h \
-    adeviceidentifier.h
+    adeviceidentifier.h \
+    widgets/amultiimagewidget.h
 
 unix {
     CONFIG += link_pkgconfig

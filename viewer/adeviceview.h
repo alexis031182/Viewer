@@ -11,7 +11,7 @@ class QLabel;
 class QMenu;
 
 class ADeviceController;
-class AImageWidget;
+class AMultiImageWidget;
 
 class ADeviceView : public QWidget {
     Q_OBJECT
@@ -39,7 +39,7 @@ class ADeviceView : public QWidget {
     private:
         bool _action_wdg_animate_freezed;
 
-        AImageWidget *_img_wdg;
+        AMultiImageWidget *_img_wdg;
 
         QMenu *_url_menu, *_dev_menu, *_flt_menu;
 

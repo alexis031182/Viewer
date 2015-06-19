@@ -13,7 +13,7 @@
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QMenu>
 
-#include "widgets/aimagewidget.h"
+#include "widgets/amultiimagewidget.h"
 
 #include "adeviceview.h"
 #include "aservicecontroller.h"
@@ -25,7 +25,7 @@
 ADeviceView::ADeviceView(QWidget *parent)
     : QWidget(parent), _action_wdg_animate_freezed(false) {
 
-    _img_wdg = new AImageWidget(this);
+    _img_wdg = new AMultiImageWidget(this);
 
     _url_menu = new QMenu(this);
     connect(_url_menu, &QMenu::aboutToShow, [this]() {
@@ -72,6 +72,8 @@ ADeviceView::ADeviceView(QWidget *parent)
         flt_disabled_action->setCheckable(true);
         flt_disabled_action->setChecked(true);
         connect(flt_disabled_action, &QAction::triggered, [this]() {
+            _img_wdg->hidePreview();
+
             if(_dev_ctrl) _dev_ctrl->unsetFilter();
         });
 
@@ -102,7 +104,10 @@ ADeviceController *ADeviceView::controller() const {return _dev_ctrl;}
 // ========================================================================== //
 void ADeviceView::setController(ADeviceController *ctrl) {
     if(_dev_ctrl) {
-        _dev_ctrl->unsetImageWidget();
+        disconnect(_dev_ctrl, &ADeviceController::captured
+            , _img_wdg, &AMultiImageWidget::setImage);
+        disconnect(_dev_ctrl, &ADeviceController::filtered
+            , _img_wdg, &AMultiImageWidget::setPreviewImage);
 
         disconnect(_dev_ctrl, &ADeviceController::captureFpsChanged
             , this, &ADeviceView::onCaptureFpsChanged);
@@ -113,10 +118,13 @@ void ADeviceView::setController(ADeviceController *ctrl) {
     _dev_ctrl = ctrl;
 
     if(_dev_ctrl) {
-        _dev_ctrl->setImageWidget(_img_wdg);
-
         _title_label->setText(_dev_ctrl->identifier().displayName());
         animateShowTitleWidget();
+
+        connect(_dev_ctrl, &ADeviceController::captured
+            , _img_wdg, &AMultiImageWidget::setImage);
+        connect(_dev_ctrl, &ADeviceController::filtered
+            , _img_wdg, &AMultiImageWidget::setPreviewImage);
 
         connect(_dev_ctrl, &ADeviceController::captureFpsChanged
             , this, &ADeviceView::onCaptureFpsChanged);
@@ -215,6 +223,8 @@ void ADeviceView::createFilterGroupAction(int grp_i) {
 
                 if(_dev_ctrl->filter() != file)
                     _dev_ctrl->setFilter(file);
+
+                _img_wdg->showPreview();
 
                 QWidget *flt_wdg = _dev_ctrl->filterProperties();
                 if(flt_wdg) {

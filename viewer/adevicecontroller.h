@@ -9,7 +9,6 @@
 class QPluginLoader;
 
 class ACaptureThread;
-class AImageWidget;
 
 class ADeviceController : public QObject {
     Q_OBJECT
@@ -20,6 +19,9 @@ class ADeviceController : public QObject {
 
         void stopping();
         void stopped();
+
+        void captured(const QImage &img);
+        void filtered(const QImage &img);
 
         void captureFpsChanged(double fps);
         void previewFpsChanged(double fps);
@@ -54,15 +56,6 @@ class ADeviceController : public QObject {
         //! Get is capturing.
         bool isCapturing() const;
 
-        //! Get image widget.
-        AImageWidget *imageWidget() const;
-
-        //! Set image widget.
-        void setImageWidget(AImageWidget *wdg);
-
-        //! Unset image widget.
-        void unsetImageWidget();
-
     public slots:
         //! Start.
         void start();
@@ -76,8 +69,6 @@ class ADeviceController : public QObject {
         QPointer<QPluginLoader> _loader;
 
         ACaptureThread *_capture;
-
-        QPointer<AImageWidget> _img_wdg;
 
 };
 

@@ -237,7 +237,44 @@ void ACaptureThread::run() {
 
         av_free_packet(&av_pkt);
 
+        const int &w = av_cap_frm->width;
+        const int &h = av_cap_frm->height;
+
+        QImage img(w, h, QImage::Format_RGB888);
+        for(int row = 0, bpl = w*3; row < av_cap_frm->height; ++row) {
+            memcpy(img.scanLine(row)
+                , av_cap_frm->data[0] + row*av_cap_frm->linesize[0], bpl);
+        }
+
+        QImage cap_img
+            = img.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+
+        QMetaObject::invokeMethod(this, "captured"
+            , Qt::QueuedConnection, Q_ARG(QImage,cap_img));
+
         _mutex.lock();
+        bool has_filter = (_filter) ? true : false;
+        _mutex.unlock();
+
+        if(has_filter) {
+            cv::Mat mat(img.height(), img.width(), CV_8UC3
+                , img.bits(), img.bytesPerLine());
+
+            _mutex.lock();
+            if(_filter) _filter->run(mat);
+            _mutex.unlock();
+
+            QImage img
+                = QImage(mat.data, mat.cols, mat.rows, mat.step
+                    , QImage::Format_RGB888);
+
+            img = img.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+
+            QMetaObject::invokeMethod(this, "filtered"
+                , Qt::QueuedConnection, Q_ARG(QImage,img));
+        }
+
+        /*_mutex.lock();
         bool has_filter = (_filter) ? true : false;
         _mutex.unlock();
 
@@ -283,7 +320,7 @@ void ACaptureThread::run() {
         }
 
         QMetaObject::invokeMethod(this, "captured"
-            , Qt::QueuedConnection, Q_ARG(QImage,img));
+            , Qt::QueuedConnection, Q_ARG(QImage,img));*/
 
         int cur_dur = stream_timer.elapsed();
         if(vid_strm_avg_dur > cur_dur)
@@ -302,6 +339,8 @@ void ACaptureThread::run() {
     setCaptureFps(0);
 
     QMetaObject::invokeMethod(this, "captured"
+        , Qt::QueuedConnection, Q_ARG(QImage,QImage()));
+    QMetaObject::invokeMethod(this, "filtered"
         , Qt::QueuedConnection, Q_ARG(QImage,QImage()));
 }
 

@@ -12,6 +12,11 @@
 ADeviceController::ADeviceController(QObject *parent)
     : QObject(parent), _capture(new ACaptureThread(this)) {
 
+    connect(_capture, &ACaptureThread::captured
+        , this, &ADeviceController::captured);
+    connect(_capture, &ACaptureThread::filtered
+        , this, &ADeviceController::filtered);
+
     connect(_capture, &ACaptureThread::captureFpsChanged
         , this, &ADeviceController::captureFpsChanged);
     connect(_capture, &ACaptureThread::previewFpsChanged
@@ -116,38 +121,6 @@ QWidget *ADeviceController::filterProperties() const {
 // Get is capturing.
 // ========================================================================== //
 bool ADeviceController::isCapturing() const {return _capture->isRunning();}
-
-
-// ========================================================================== //
-// Get image widget.
-// ========================================================================== //
-AImageWidget *ADeviceController::imageWidget() const {return _img_wdg;}
-
-
-// ========================================================================== //
-// Set image widget.
-// ========================================================================== //
-void ADeviceController::setImageWidget(AImageWidget *wdg) {
-    if(_img_wdg) {
-        disconnect(_capture, &ACaptureThread::captured
-            , _img_wdg, &AImageWidget::setImage);
-
-        _img_wdg->setImage(QImage());
-    }
-
-    _img_wdg = wdg;
-
-    if(_img_wdg) {
-        connect(_capture, &ACaptureThread::captured
-            , _img_wdg, &AImageWidget::setImage);
-    }
-}
-
-
-// ========================================================================== //
-// Unset image widget.
-// ========================================================================== //
-void ADeviceController::unsetImageWidget() {setImageWidget(NULL);}
 
 
 // ========================================================================== //

@@ -11,6 +11,7 @@ class ACaptureThread : public QThread {
 
     signals:
         void captured(const QImage &img);
+        void filtered(const QImage &img);
 
         void captureFpsChanged(double fps);
         void previewFpsChanged(double fps);
