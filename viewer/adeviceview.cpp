@@ -229,10 +229,10 @@ void ADeviceView::createFilterGroupAction(int grp_i) {
 
                 _img_wdg->showPreview();
 
+                animateHideActionWidget();
+
                 QWidget *flt_wdg = _dev_ctrl->filterProperties();
                 if(flt_wdg) {
-                    animateHideActionWidget();
-
                     QDialog dlg(this);
                     dlg.setWindowTitle(name);
                     dlg.setLayout(new QVBoxLayout());
