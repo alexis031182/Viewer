@@ -2,6 +2,7 @@ TEMPLATE = subdirs
 
 SUBDIRS += general/grayfilter \
     general/blurfilter \
-    frequency/dftfilter
+    frequency/dftfilter \
+    general/sharpfilter
 
 HEADERS += afilterinterface.h
