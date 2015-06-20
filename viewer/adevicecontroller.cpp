@@ -149,6 +149,7 @@ void ADeviceController::stop() {
         , this, &ADeviceController::stop);
 
     _capture->requestInterruption();
+    _capture->quit();
     _capture->wait();
 
     connect(_capture, &ACaptureThread::finished

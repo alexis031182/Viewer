@@ -66,6 +66,9 @@ class ACaptureThread : public QThread {
 
         QMutex _mutex;
 
+        //! Filter.
+        void filter(QImage &img);
+
         //! Set capture fps.
         void setCaptureFps(double fps);
 

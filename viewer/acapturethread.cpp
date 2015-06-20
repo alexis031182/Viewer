@@ -6,7 +6,10 @@ extern "C" {
 }
 
 #include <QtCore/QElapsedTimer>
+#include <QtCore/QFileInfo>
+#include <QtCore/QTimer>
 
+#include <QtGui/QImageReader>
 #include <QtGui/QImage>
 
 #include "acapturethread.h"
@@ -102,6 +105,45 @@ void ACaptureThread::run() {
         QMetaObject::invokeMethod(this, "failed", Qt::QueuedConnection);
 
         return;
+    }
+
+    if(!dev_name.isEmpty()) {
+        const QString suffix = QFileInfo(dev_name).suffix();
+
+        QListIterator<QByteArray> itr(QImageReader::supportedImageFormats());
+        while(itr.hasNext()) {
+            if(suffix == itr.next()) {
+                QImage img(dev_name);
+                if(img.isNull()) continue;
+
+                img = img.convertToFormat(QImage::Format_RGB888);
+
+                QTimer timer;
+                timer.setSingleShot(false);
+                timer.setInterval(250);
+
+                connect(&timer, &QTimer::timeout, [this,img]() {
+                    QImage cap_img
+                        = img.convertToFormat(
+                            QImage::Format_ARGB32_Premultiplied);
+
+                    QMetaObject::invokeMethod(this, "captured"
+                        , Qt::QueuedConnection, Q_ARG(QImage,cap_img));
+
+                    QImage flt_img = img.copy();
+                    filter(flt_img);
+                });
+
+                timer.start(); exec();
+
+                QMetaObject::invokeMethod(this, "captured"
+                    , Qt::QueuedConnection, Q_ARG(QImage,QImage()));
+                QMetaObject::invokeMethod(this, "filtered"
+                    , Qt::QueuedConnection, Q_ARG(QImage,QImage()));
+
+                return;
+            }
+        }
     }
 
     AVInputFormat *av_inp_fmt = NULL;
@@ -252,27 +294,7 @@ void ACaptureThread::run() {
         QMetaObject::invokeMethod(this, "captured"
             , Qt::QueuedConnection, Q_ARG(QImage,cap_img));
 
-        _mutex.lock();
-        bool has_filter = (_filter) ? true : false;
-        _mutex.unlock();
-
-        if(has_filter) {
-            cv::Mat mat(img.height(), img.width(), CV_8UC3
-                , img.bits(), img.bytesPerLine());
-
-            _mutex.lock();
-            if(_filter) _filter->run(mat);
-            _mutex.unlock();
-
-            QImage img
-                = QImage(mat.data, mat.cols, mat.rows, mat.step
-                    , QImage::Format_RGB888);
-
-            img = img.convertToFormat(QImage::Format_ARGB32_Premultiplied);
-
-            QMetaObject::invokeMethod(this, "filtered"
-                , Qt::QueuedConnection, Q_ARG(QImage,img));
-        }
+        filter(img);
 
         int cur_dur = stream_timer.elapsed();
         if(vid_strm_avg_dur > cur_dur)
@@ -294,6 +316,27 @@ void ACaptureThread::run() {
         , Qt::QueuedConnection, Q_ARG(QImage,QImage()));
     QMetaObject::invokeMethod(this, "filtered"
         , Qt::QueuedConnection, Q_ARG(QImage,QImage()));
+}
+
+
+// ========================================================================== //
+// Filter.
+// ========================================================================== //
+void ACaptureThread::filter(QImage &img) {
+    QMutexLocker locker(&_mutex);
+    if(!_filter) return;
+
+    cv::Mat src_mat(img.height(), img.width(), CV_8UC3, img.bits()
+        , img.bytesPerLine());
+
+    cv::Mat mat = src_mat.clone();
+    _filter->run(mat);
+
+    img = QImage(mat.data, mat.cols, mat.rows, mat.step, QImage::Format_RGB888);
+    img = img.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+
+    QMetaObject::invokeMethod(this, "filtered"
+        , Qt::QueuedConnection, Q_ARG(QImage,img));
 }
 
 
