@@ -57,6 +57,10 @@ QWidget *ABlurFilter::properties() {
     for(int i = 3; i < 53; i += 2)
         krnl_cbox->addItem(QString::number(i), i);
 
+    _mutex.lock();
+    krnl_cbox->setCurrentIndex(krnl_cbox->findData(_krnl_size));
+    _mutex.unlock();
+
     connect(krnl_cbox
         , static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged)
         , [this,krnl_cbox](int idx) {
