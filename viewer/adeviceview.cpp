@@ -131,6 +131,9 @@ void ADeviceView::setController(ADeviceController *ctrl) {
         connect(_dev_ctrl, &ADeviceController::previewFpsChanged
             , this, &ADeviceView::onPreviewFpsChanged);
     }
+
+    QList<QAction*> flt_actions = _flt_act_grp->actions();
+    if(!flt_actions.isEmpty()) flt_actions.first()->trigger();
 }
 
 
