@@ -76,7 +76,9 @@ void AMultiImageWidget::showPreview() {_preview_img_wdg->show();}
 // ========================================================================== //
 // Hide preview.
 // ========================================================================== //
-void AMultiImageWidget::hidePreview() {_preview_img_wdg->hide();}
+void AMultiImageWidget::hidePreview() {
+    _preview_switched = false; _preview_img_wdg->hide();
+}
 
 
 // ========================================================================== //
