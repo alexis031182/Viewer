@@ -43,7 +43,7 @@ class ADeviceView : public QWidget {
 
         QMenu *_url_menu, *_dev_menu, *_flt_menu;
 
-        QActionGroup *_url_act_grp, *_dev_act_grp, *_flt_act_grp;
+        QActionGroup *_dev_act_grp, *_flt_act_grp;
 
         QLabel *_title_label;
 

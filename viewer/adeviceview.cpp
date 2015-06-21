@@ -51,7 +51,6 @@ ADeviceView::ADeviceView(QWidget *parent)
         _action_wdg_animate_freezed = false;
     });
 
-    _url_act_grp = new QActionGroup(this);
     _dev_act_grp = new QActionGroup(this);
     _flt_act_grp = new QActionGroup(this);
 
@@ -168,10 +167,7 @@ bool ADeviceView::eventFilter(QObject *obj, QEvent *event) {
 // Create device action.
 // ========================================================================== //
 void ADeviceView::createDeviceAction(ADeviceController *ctrl) {
-    QAction *action
-        = new QAction((ctrl->identifier().hasValue(ADeviceIdentifier::TYPE_URL))
-            ? _url_act_grp : _dev_act_grp);
-
+    QAction *action = new QAction(_dev_act_grp);
     action->setText(ctrl->identifier().displayName());
     action->setCheckable(true);
     connect(action, &QAction::triggered, [this,ctrl]() {
