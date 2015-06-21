@@ -1,14 +1,12 @@
 #ifndef ADEVICECONTROLLER_H
 #define ADEVICECONTROLLER_H
 
-#include <QtCore/QPointer>
 #include <QtCore/QObject>
 
 #include "adeviceidentifier.h"
 
-class QPluginLoader;
-
-class ACaptureThread;
+class ACaptureDevice;
+class AFilterDevice;
 
 class ADeviceController : public QObject {
     Q_OBJECT
@@ -66,9 +64,9 @@ class ADeviceController : public QObject {
     private:
         ADeviceIdentifier _identifier;
 
-        QPointer<QPluginLoader> _loader;
+        ACaptureDevice *_cap_dev;
 
-        ACaptureThread *_capture;
+        AFilterDevice *_flt_dev;
 
 };
 

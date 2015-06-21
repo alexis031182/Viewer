@@ -14,24 +14,32 @@ SOURCES += main.cpp \
     amainwindow.cpp \
     aservicecontroller.cpp \
     widgets/aimagewidget.cpp \
-    acapturethread.cpp \
     adevicecontroller.cpp \
     adeviceview.cpp \
     widgets/aurlselector.cpp \
     widgets/amodelselector.cpp \
     adeviceidentifier.cpp \
-    widgets/amultiimagewidget.cpp
+    widgets/amultiimagewidget.cpp \
+    adevice.cpp \
+    afilterdevice.cpp \
+    acapturedevice.cpp \
+    aimagecapturedevice.cpp \
+    avideocapturedevice.cpp
 
 HEADERS += amainwindow.h \
     aservicecontroller.h \
     widgets/aimagewidget.h \
-    acapturethread.h \
     adevicecontroller.h \
     adeviceview.h \
     widgets/aurlselector.h \
     widgets/amodelselector.h \
     adeviceidentifier.h \
-    widgets/amultiimagewidget.h
+    widgets/amultiimagewidget.h \
+    adevice.h \
+    afilterdevice.h \
+    acapturedevice.h \
+    aimagecapturedevice.h \
+    avideocapturedevice.h
 
 unix {
     CONFIG += link_pkgconfig

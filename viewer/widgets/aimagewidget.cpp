@@ -40,7 +40,8 @@ void AImageWidget::setImage(const QImage &img) {
         if(img.width() != _img.width() || img.height() != _img.height())
             _dst_rc = QRect();
 
-        _img = img;
+        if(img.format() == QImage::Format_ARGB32_Premultiplied) _img = img;
+        else _img = img.convertToFormat(QImage::Format_ARGB32_Premultiplied);
     }
 
     update();
