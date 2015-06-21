@@ -192,7 +192,12 @@ void AVideoCaptureDevice::threadRun() {
     AVPacket av_pkt;
 
     forever {
-        if(av_read_frame(_av_fmt_ctx, &av_pkt) < 0) break;
+        if(av_read_frame(_av_fmt_ctx, &av_pkt) < 0) {
+            QMetaObject::invokeMethod(this, "stop"
+                , Qt::QueuedConnection);
+
+            break;
+        }
 
         if(av_pkt.stream_index != _vid_strm_idx) {
             av_free_packet(&av_pkt); continue;
