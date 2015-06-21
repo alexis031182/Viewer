@@ -39,7 +39,11 @@ QString AFilterDevice::fileName() const {return _plugin->fileName();}
 // Set file name.
 // ========================================================================== //
 void AFilterDevice::setFileName(const QString &fname) {
+    if(_plugin->isLoaded())
+        _plugin->unload();
+
     _plugin->setFileName(fname);
+    _plugin->load();
 }
 
 
@@ -66,10 +70,6 @@ void AFilterDevice::start() {
 
     emit starting();
 
-    if(!_plugin->load()) {
-        emit failed(); return;
-    }
-
     _running = true;
 
     _semaphore.release();
@@ -87,10 +87,6 @@ void AFilterDevice::stop() {
     emit stopping();
 
     _semaphore.acquire();
-
-    if(!_plugin->unload()) {
-        emit failed(); return;
-    }
 
     _running = false;
 
