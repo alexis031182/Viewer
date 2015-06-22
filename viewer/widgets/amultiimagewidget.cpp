@@ -1,8 +1,5 @@
 #include <QtGui/QResizeEvent>
 
-#include <QtWidgets/QLayout>
-#include <QtWidgets/QFrame>
-
 #include "amultiimagewidget.h"
 
 // ========================================================================== //
