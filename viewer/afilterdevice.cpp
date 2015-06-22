@@ -98,7 +98,7 @@ void AFilterDevice::stop() {
 // Run.
 // ========================================================================== //
 void AFilterDevice::run(const QImage &img) {
-    if(_semaphore.tryAcquire(1))
+    if(_semaphore.tryAcquire())
         QtConcurrent::run(this, &AFilterDevice::threadRun, img);
 }
 
