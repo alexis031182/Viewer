@@ -155,8 +155,10 @@ void ADeviceView::resizeEvent(QResizeEvent *event) {
 // ========================================================================== //
 bool ADeviceView::eventFilter(QObject *obj, QEvent *event) {
     if(_action_wdg == obj) {
-        if(event->type() == QEvent::Enter) animateShowActionWidget();
-        else if(event->type() == QEvent::Leave) animateHideActionWidget();
+        if(event->type() == QEvent::Enter) {
+            animateShowActionWidget(); animateShowTitleWidget();
+
+        } else if(event->type() == QEvent::Leave) animateHideActionWidget();
     }
 
     return QWidget::eventFilter(obj, event);
