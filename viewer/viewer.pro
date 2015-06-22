@@ -1,4 +1,4 @@
-QT += core gui widgets
+QT += core gui widgets sql
 
 TARGET = viewer
 
@@ -24,7 +24,11 @@ SOURCES += main.cpp \
     afilterdevice.cpp \
     acapturedevice.cpp \
     aimagecapturedevice.cpp \
-    avideocapturedevice.cpp
+    avideocapturedevice.cpp \
+    database/adatabasecontroller.cpp \
+    database/asqltablecontroller.cpp \
+    amessagessqltablecontroller.cpp \
+    aservicedatabasecontroller.cpp
 
 HEADERS += amainwindow.h \
     aservicecontroller.h \
@@ -39,7 +43,11 @@ HEADERS += amainwindow.h \
     afilterdevice.h \
     acapturedevice.h \
     aimagecapturedevice.h \
-    avideocapturedevice.h
+    avideocapturedevice.h \
+    database/adatabasecontroller.h \
+    database/asqltablecontroller.h \
+    amessagessqltablecontroller.h \
+    aservicedatabasecontroller.h
 
 unix {
     CONFIG += link_pkgconfig

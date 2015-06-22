@@ -7,6 +7,8 @@
 class QStandardItemModel;
 class QAbstractItemModel;
 
+class AServiceDatabaseController;
+class ASqlTableController;
 class ADeviceController;
 
 class AServiceController : public QObject {
@@ -24,6 +26,12 @@ class AServiceController : public QObject {
 
         //! Destructor.
         virtual ~AServiceController() {}
+
+        //! Get database is opened.
+        bool isDatabaseOpened() const;
+
+        //! Get messages.
+        ASqlTableController *messages() const;
 
         //! Register device.
         void registerDevice(ADeviceController *ctrl);
@@ -45,6 +53,8 @@ class AServiceController : public QObject {
         void updateVideoFilterModel();
 
     private:
+        AServiceDatabaseController *_service_db_ctrl;
+
         QObject *_devices_obj;
 
         QPointer<QStandardItemModel> _vid_dev_model, _vid_flt_model;
