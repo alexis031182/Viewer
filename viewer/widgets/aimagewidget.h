@@ -18,6 +18,12 @@ class AImageWidget : public QWidget {
         //! Get size hint.
         virtual QSize sizeHint() const;
 
+        //! Has framed.
+        bool hasFramed() const;
+
+        //! Set framed.
+        void setFramed(bool value);
+
         //! Get image.
         virtual QImage image() const;
 
@@ -33,6 +39,8 @@ class AImageWidget : public QWidget {
         virtual void resizeEvent(QResizeEvent *event);
 
     private:
+        bool _framed;
+
         QImage _img;
 
         QRect _dst_rc;

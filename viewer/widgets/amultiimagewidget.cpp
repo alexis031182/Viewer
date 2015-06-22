@@ -1,5 +1,8 @@
 #include <QtGui/QResizeEvent>
 
+#include <QtWidgets/QLayout>
+#include <QtWidgets/QFrame>
+
 #include "amultiimagewidget.h"
 
 // ========================================================================== //
@@ -9,14 +12,10 @@ AMultiImageWidget::AMultiImageWidget(QWidget *parent)
     : AImageWidget(parent), _preview_switched(false) {
 
     _preview_img_wdg = new AImageWidget(this);
-    _preview_img_wdg->installEventFilter(this);
+    _preview_img_wdg->setFramed(true);
     _preview_img_wdg->setFixedSize(160,120);
     _preview_img_wdg->setVisible(false);
-
-    QPalette palette = _preview_img_wdg->palette();
-    palette.setColor(QPalette::Base, Qt::gray);
-    palette.setColor(QPalette::Background, Qt::gray);
-    _preview_img_wdg->setPalette(palette);
+    _preview_img_wdg->installEventFilter(this);
 
     QMetaObject::invokeMethod(this, "updatePreviewPosition"
         , Qt::QueuedConnection);

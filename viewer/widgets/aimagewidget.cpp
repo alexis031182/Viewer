@@ -2,12 +2,14 @@
 #include <QtGui/QPaintEvent>
 #include <QtGui/QPainter>
 
+#include <QtWidgets/QStyleOptionFrame>
+
 #include "aimagewidget.h"
 
 // ========================================================================== //
 // Constructor.
 // ========================================================================== //
-AImageWidget::AImageWidget(QWidget *parent) : QWidget(parent) {
+AImageWidget::AImageWidget(QWidget *parent) : QWidget(parent), _framed(false) {
     setAutoFillBackground(false);
     setAttribute(Qt::WA_NoSystemBackground, true);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -23,6 +25,24 @@ AImageWidget::AImageWidget(QWidget *parent) : QWidget(parent) {
 // Get size hint.
 // ========================================================================== //
 QSize AImageWidget::sizeHint() const {return QSize(320,240);}
+
+
+// ========================================================================== //
+// Has framed.
+// ========================================================================== //
+bool AImageWidget::hasFramed() const {return _framed;}
+
+
+// ========================================================================== //
+// Set framed.
+// ========================================================================== //
+void AImageWidget::setFramed(bool value) {
+    const bool need_update = (_framed != value);
+
+    _framed = value;
+
+    if(need_update) update();
+}
 
 
 // ========================================================================== //
@@ -52,7 +72,7 @@ void AImageWidget::setImage(const QImage &img) {
 // Paint event.
 // ========================================================================== //
 void AImageWidget::paintEvent(QPaintEvent *event) {
-     if(_img.isNull()) {
+    if(_img.isNull()) {
         QPainter painter(this);
         painter.fillRect(event->rect(), palette().background());
         event->accept();
@@ -71,6 +91,8 @@ void AImageWidget::paintEvent(QPaintEvent *event) {
         dst_rc.moveCenter(rect().center());
 
         _dst_rc = dst_rc;
+
+        if(_framed) _dst_rc.adjust(2,2,-2,-2);
     }
 
     QPainter painter(this);
@@ -85,6 +107,17 @@ void AImageWidget::paintEvent(QPaintEvent *event) {
     }
 
     painter.drawImage(_dst_rc, _img, _img.rect());
+
+    if(_framed) {
+        QStyleOptionFrame option;
+        option.rect         = rect();
+        option.midLineWidth = 1;
+        option.lineWidth    = 1;
+        option.frameShape   = QFrame::Panel;
+        option.state        = QStyle::State_Raised;
+
+        style()->drawControl(QStyle::CE_ShapedFrame, &option, &painter, this);
+    }
 
     event->accept();
 }
