@@ -13,6 +13,14 @@ AAccumulateFilter::AAccumulateFilter() : QObject(), _alpha(1000) {}
 
 
 // ========================================================================== //
+// Get instance copy.
+// ========================================================================== //
+QSharedPointer<AFilterInterface> AAccumulateFilter::copy() const {
+    return QSharedPointer<AFilterInterface>(new AAccumulateFilter());
+}
+
+
+// ========================================================================== //
 // Get display group.
 // ========================================================================== //
 QString AAccumulateFilter::displayGroup() const {

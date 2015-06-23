@@ -21,6 +21,9 @@ class BUTTERWORTHFILTERSHARED_EXPORT AButterworthFilter
         //! Destructor.
         virtual ~AButterworthFilter() {}
 
+        //! Get instance copy.
+        virtual QSharedPointer<AFilterInterface> copy() const;
+
         //! Get display group.
         virtual QString displayGroup() const;
 

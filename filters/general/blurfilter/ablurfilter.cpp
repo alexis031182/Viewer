@@ -13,6 +13,14 @@ ABlurFilter::ABlurFilter() : QObject(), _type(TYPE_NORMALIZED), _krnl_size(3) {}
 
 
 // ========================================================================== //
+// Get instance copy.
+// ========================================================================== //
+QSharedPointer<AFilterInterface> ABlurFilter::copy() const {
+    return QSharedPointer<AFilterInterface>(new ABlurFilter());
+}
+
+
+// ========================================================================== //
 // Get display group.
 // ========================================================================== //
 QString ABlurFilter::displayGroup() const {return ABlurFilter::tr("General");}

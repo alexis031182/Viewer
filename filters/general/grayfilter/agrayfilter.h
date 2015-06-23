@@ -21,6 +21,9 @@ class GRAYFILTERSHARED_EXPORT AGrayFilter
         //! Destructor.
         virtual ~AGrayFilter() {}
 
+        //! Get instance copy.
+        virtual QSharedPointer<AFilterInterface> copy() const;
+
         //! Get display group.
         virtual QString displayGroup() const;
 

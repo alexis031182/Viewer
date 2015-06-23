@@ -9,6 +9,14 @@ ASharpFilter::ASharpFilter() : QObject() {}
 
 
 // ========================================================================== //
+// Get instance copy.
+// ========================================================================== //
+QSharedPointer<AFilterInterface> ASharpFilter::copy() const {
+    return QSharedPointer<AFilterInterface>(new ASharpFilter());
+}
+
+
+// ========================================================================== //
 // Get display group.
 // ========================================================================== //
 QString ASharpFilter::displayGroup() const {return ASharpFilter::tr("General");}

@@ -15,6 +15,14 @@ AButterworthFilter::AButterworthFilter() : QObject()
 
 
 // ========================================================================== //
+// Get instance copy.
+// ========================================================================== //
+QSharedPointer<AFilterInterface> AButterworthFilter::copy() const {
+    return QSharedPointer<AFilterInterface>(new AButterworthFilter());
+}
+
+
+// ========================================================================== //
 // Get display group.
 // ========================================================================== //
 QString AButterworthFilter::displayGroup() const {

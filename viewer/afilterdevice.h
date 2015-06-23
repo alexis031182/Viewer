@@ -1,11 +1,12 @@
 #ifndef AFILTERDEVICE_H
 #define AFILTERDEVICE_H
 
+#include <QtCore/QSharedPointer>
 #include <QtCore/QSemaphore>
 
 #include "adevice.h"
 
-class QPluginLoader;
+class AFilterInterface;
 
 class AFilterDevice : public ADevice {
     Q_OBJECT
@@ -45,7 +46,9 @@ class AFilterDevice : public ADevice {
     private:
         bool _running;
 
-        QPluginLoader *_plugin;
+        QString _fname;
+
+        QSharedPointer<AFilterInterface> _filter;
 
         QSemaphore _semaphore;
 

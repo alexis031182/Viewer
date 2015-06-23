@@ -21,6 +21,9 @@ class ACCUMULATEFILTERSHARED_EXPORT AAccumulateFilter
         //! Destructor.
         virtual ~AAccumulateFilter() {}
 
+        //! Get instance copy.
+        virtual QSharedPointer<AFilterInterface> copy() const;
+
         //! Get display group.
         virtual QString displayGroup() const;
 

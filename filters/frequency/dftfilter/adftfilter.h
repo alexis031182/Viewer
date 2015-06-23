@@ -21,6 +21,9 @@ class DFTFILTERSHARED_EXPORT ADftFilter
         //! Destructor.
         virtual ~ADftFilter() {}
 
+        //! Get instance copy.
+        virtual QSharedPointer<AFilterInterface> copy() const;
+
         //! Get display group.
         virtual QString displayGroup() const;
 

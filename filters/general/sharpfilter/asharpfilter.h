@@ -21,6 +21,9 @@ class SHARPFILTERSHARED_EXPORT ASharpFilter
         //! Destructor.
         virtual ~ASharpFilter() {}
 
+        //! Get instance copy.
+        virtual QSharedPointer<AFilterInterface> copy() const;
+
         //! Get display group.
         virtual QString displayGroup() const;
 

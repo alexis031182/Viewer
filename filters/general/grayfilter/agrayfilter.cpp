@@ -13,6 +13,14 @@ AGrayFilter::AGrayFilter() : QObject(), _mode(MODE_GRAY) {}
 
 
 // ========================================================================== //
+// Get instance copy.
+// ========================================================================== //
+QSharedPointer<AFilterInterface> AGrayFilter::copy() const {
+    return QSharedPointer<AFilterInterface>(new AGrayFilter());
+}
+
+
+// ========================================================================== //
 // Get display group.
 // ========================================================================== //
 QString AGrayFilter::displayGroup() const {return AGrayFilter::tr("General");}

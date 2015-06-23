@@ -3,6 +3,7 @@
 
 #include <opencv2/core.hpp>
 
+#include <QtCore/QSharedPointer>
 #include <QtCore/QtPlugin>
 
 class QString;
@@ -12,6 +13,9 @@ class AFilterInterface {
     public:
         //! Destructor.
         virtual ~AFilterInterface() {}
+
+        //! Get instance copy.
+        virtual QSharedPointer<AFilterInterface> copy() const = 0;
 
         //! Get display group.
         virtual QString displayGroup() const = 0;

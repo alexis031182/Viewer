@@ -21,6 +21,9 @@ class BLURFILTERSHARED_EXPORT ABlurFilter
         //! Destructor.
         virtual ~ABlurFilter() {}
 
+        //! Get instance copy.
+        virtual QSharedPointer<AFilterInterface> copy() const;
+
         //! Get display group.
         virtual QString displayGroup() const;
 

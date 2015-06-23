@@ -11,16 +11,14 @@
 // Constructor.
 // ========================================================================== //
 AFilterDevice::AFilterDevice(QObject *parent)
-    : ADevice(parent), _running(false)
-    , _plugin(new QPluginLoader(this)) {}
+    : ADevice(parent), _running(false) {}
 
 
 // ========================================================================== //
 // Constructor.
 // ========================================================================== //
 AFilterDevice::AFilterDevice(const QString &fname, QObject *parent)
-    : ADevice(parent), _running(false)
-    , _plugin(new QPluginLoader(fname,this)) {_plugin->load();}
+    : ADevice(parent), _running(false) {setFileName(fname);}
 
 
 // ========================================================================== //
@@ -32,18 +30,28 @@ bool AFilterDevice::isRunning() const {return _running;}
 // ========================================================================== //
 // Get file name.
 // ========================================================================== //
-QString AFilterDevice::fileName() const {return _plugin->fileName();}
+QString AFilterDevice::fileName() const {return _fname;}
 
 
 // ========================================================================== //
 // Set file name.
 // ========================================================================== //
 void AFilterDevice::setFileName(const QString &fname) {
-    if(_plugin->isLoaded())
-        _plugin->unload();
+    _fname = fname;
 
-    _plugin->setFileName(fname);
-    _plugin->load();
+    QPluginLoader plugin;
+    plugin.setFileName(fname);
+
+    AFilterInterface *filter
+        = qobject_cast<AFilterInterface*>(plugin.instance());
+
+    const bool running = isRunning();
+    if(running) stop();
+
+    if(filter) _filter = filter->copy();
+    else _filter.clear();
+
+    if(running) start();
 }
 
 
@@ -51,14 +59,8 @@ void AFilterDevice::setFileName(const QString &fname) {
 // Get properties.
 // ========================================================================== //
 QWidget *AFilterDevice::properties() const {
-    if(_plugin->isLoaded()) {
-        AFilterInterface *filter
-            = qobject_cast<AFilterInterface*>(_plugin->instance());
-
-        if(filter) return filter->properties();
-    }
-
-    return NULL;
+    if(_filter.isNull()) return NULL;
+    return _filter->properties();
 }
 
 
@@ -107,10 +109,7 @@ void AFilterDevice::run(const QImage &img) {
 // Thread run.
 // ========================================================================== //
 void AFilterDevice::threadRun(const QImage &src_img) {
-    AFilterInterface *filter
-        = qobject_cast<AFilterInterface*>(_plugin->instance());
-
-    if(!filter) {_semaphore.release(); return;}
+    if(_filter.isNull()) {_semaphore.release(); return;}
 
     QImage img;
     if(src_img.format() == QImage::Format_RGB888) img = src_img;
@@ -120,7 +119,7 @@ void AFilterDevice::threadRun(const QImage &src_img) {
         = cv::Mat(img.height(), img.width(), CV_8UC3, img.bits()
             , img.bytesPerLine()).clone();
 
-    filter->run(mat);
+    _filter->run(mat);
 
     img = QImage(mat.data, mat.cols, mat.rows, mat.step, QImage::Format_RGB888);
 

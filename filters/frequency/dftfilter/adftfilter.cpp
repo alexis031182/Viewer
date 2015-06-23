@@ -9,6 +9,14 @@ ADftFilter::ADftFilter() : QObject() {}
 
 
 // ========================================================================== //
+// Get instance copy.
+// ========================================================================== //
+QSharedPointer<AFilterInterface> ADftFilter::copy() const {
+    return QSharedPointer<AFilterInterface>(new ADftFilter());
+}
+
+
+// ========================================================================== //
 // Get display group.
 // ========================================================================== //
 QString ADftFilter::displayGroup() const {return ADftFilter::tr("Frequency");}
